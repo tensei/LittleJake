@@ -5,9 +5,9 @@ using Discord.Commands;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleSteve.Data;
+using LittleSteve.Jobs;
 using LittleSteve.Models;
 using LittleSteve.Services;
-using LittleSteve.Services.Twitter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +26,7 @@ namespace LittleSteve
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
+                MessageCacheSize = 1000,
                 AlwaysDownloadUsers = true,
 #if DEBUG
                 LogLevel = LogSeverity.Verbose,
@@ -45,10 +46,17 @@ namespace LittleSteve
         private void SetupJobs()
         {
             var registry = new Registry();
-            registry.Schedule(() => new TwitterMonitoringJob(962385627663695872,
-                new TwitterService(_services.GetRequiredService<IOptions<BotConfig>>().Value.TwitterTokens),
-                _services.GetService<SteveBotContext>())).WithName("test").ToRunEvery(15).Seconds();
-            //  JobManager.JobStart += info => Log.Information(info.Name); 
+
+            using (var context = _services.GetService<SteveBotContext>())
+            {
+                foreach (var user in context.TwitterUsers)
+                {
+                    registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
+                        _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunEvery(30).Seconds();
+                }
+            }
+
+            
             JobManager.Initialize(registry);
         }
 
@@ -69,9 +77,11 @@ namespace LittleSteve
             return new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
+                
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton(new TwitterService(_config.Get<BotConfig>().TwitterTokens))
                 .Configure<BotConfig>(_config)
+           
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
                 .AddScoped(provider => provider.GetRequiredService<IOptions<BotConfig>>().Value)
                 .AddOptions()
@@ -87,4 +97,6 @@ namespace LittleSteve
                 .Build();
         }
     }
+
+   
 }

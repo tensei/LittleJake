@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CoreTweet;
 using LittleSteve.Models;
 
-namespace LittleSteve.Services.Twitter
+namespace LittleSteve.Services
 {
     public class TwitterService
     {
@@ -37,6 +37,21 @@ namespace LittleSteve.Services.Twitter
             var tweets =
                 await _token.Statuses.UserTimelineAsync(userId, count, tweetId, tweet_mode: TweetMode.Extended);
             return tweets.OrderBy(x => x.CreatedAt);
+        }
+
+        public async Task<UserResponse> GetUserFromHandle(string handle)
+        {
+            try
+            {
+                var user = await _token.Users.ShowAsync(handle);
+                return user;
+            }
+            catch (TwitterException e)
+            {
+                return null;
+
+            }
+       
         }
     }
 }

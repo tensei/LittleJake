@@ -42,5 +42,7 @@ namespace LittleSteve.Data
                 g.HasOne(x => x.TwitterUser).WithMany(x => x.GuildOwners).HasForeignKey(x => x.TwitterUserId);
             });
         }
+
+        
     }
 }

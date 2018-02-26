@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LittleSteve.Models;
+using Serilog;
 
 namespace LittleSteve.Services
 {
@@ -32,6 +34,8 @@ namespace LittleSteve.Services
 
         private async Task MessageReceived(SocketMessage rawMessage)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             // Ignore system messages and messages from bots
             if (!(rawMessage is SocketUserMessage message))
             {
@@ -51,8 +55,17 @@ namespace LittleSteve.Services
                 return;
             }
 
-            var context = new SocketCommandContext(_client, message);
+            var context = new SteveBotCommandContext(_client, message,_provider);
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
+
+            if (!result.IsSuccess)
+            {
+
+                Log.Error($"{result.Error}: {result.ErrorReason}");
+            }
+
+            stopwatch.Stop();
+            Log.Information($"Took {stopwatch.ElapsedMilliseconds}ms to process: {message}");
         }
     }
 }
