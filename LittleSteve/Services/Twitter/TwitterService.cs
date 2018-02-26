@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreTweet;
 using LittleSteve.Models;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace LittleSteve.Services.Twitter
 {
@@ -21,21 +22,22 @@ namespace LittleSteve.Services.Twitter
         {
         }
 
-        public async Task<Status> GetLatestTweetForUser(long userId)
+        public async Task<Status> GetLatestTweetForUserAsync(long userId)
         {
             return (await _token.Statuses.UserTimelineAsync(userId, 1)).Single();
         }
 
-        public async Task<Status> GetTweetById(long tweetId)
+        public async Task<Status> GetTweetByIdAsync(long tweetId)
         {
+            
             var tweets = await _token.Statuses.LookupAsync(new List<long> {tweetId}, tweet_mode: TweetMode.Extended);
             return tweets.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<Status>> GetTweetSince(long userId, long tweetId)
+        public async Task<IEnumerable<Status>> GetTweetsSinceAsync(long userId, long tweetId,int count = 50)
         {
-            var tweets = await _token.Statuses.UserTimelineAsync(userId, since_id: tweetId);
-            return tweets.Where(x => x.IsRetweeted ?? false).OrderBy(x => x.CreatedAt);
+            var tweets = await _token.Statuses.UserTimelineAsync(userId,count, since_id: tweetId,tweet_mode:TweetMode.Extended);
+            return tweets.OrderBy(x => x.CreatedAt);
         }
     }
 }

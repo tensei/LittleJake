@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using LittleSteve.Models;
+using Newtonsoft.Json;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Formatting.Json;
@@ -12,12 +15,12 @@ namespace LittleSteve
         private static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console(new JsonFormatter(renderMessage: true))
+                .WriteTo.Console()
                // .WriteTo.File(new JsonFormatter(renderMessage: true),"log.txt", rollingInterval: RollingInterval.Day)
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
-
-            Log.Information("test");
+         
+        
             try
             {
               
