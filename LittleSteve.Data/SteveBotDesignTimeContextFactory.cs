@@ -18,7 +18,8 @@ namespace LittleSteve.Data
                 .AddJsonFile("config.json")
                 .Build();
             var options = new DbContextOptionsBuilder<SteveBotContext>();
-            options.UseNpgsql(config.GetConnectionString("ConnectionString"));
+         
+            options.UseNpgsql(config.GetSection("ConnectionString").Value);
             return new SteveBotContext(options.Options);
         }
     }

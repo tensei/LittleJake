@@ -2,8 +2,8 @@
 {
     public class GuildOwner
     {
-        public ulong DiscordId { get; set; }
-        public ulong GuildId { get; set; }
+        public long DiscordId { get; set; }
+        public long GuildId { get; set; }
         public TwitterUser TwitterUser { get; set; }
         public long TwitterUserId { get; set; }
 
