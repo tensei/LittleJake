@@ -1,12 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
-using LittleSteve.Models;
-using Newtonsoft.Json;
 using Serilog;
 using Serilog.Exceptions;
-using Serilog.Formatting.Json;
-
 
 namespace LittleSteve
 {
@@ -16,14 +11,13 @@ namespace LittleSteve
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-               // .WriteTo.File(new JsonFormatter(renderMessage: true),"log.txt", rollingInterval: RollingInterval.Day)
+                // .WriteTo.File(new JsonFormatter(renderMessage: true),"log.txt", rollingInterval: RollingInterval.Day)
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
-         
-        
+
+
             try
             {
-              
                 await new SteveBot().StartAsync();
             }
             catch (Exception e)

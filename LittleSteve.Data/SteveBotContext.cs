@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LittleSteve.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,17 +6,15 @@ namespace LittleSteve.Data
 {
     public class SteveBotContext : DbContext
     {
-        public DbSet<TwitterUser> TwitterUsers { get; set; }
-        public DbSet<TwitterAlert> TwitterAlerts { get; set; }
-        public DbSet<GuildOwner> GuildOwners { get; set; }
-        public DateTime DateCreated { get; set; }
-
         public SteveBotContext(DbContextOptions<SteveBotContext> options) : base(options)
         {
             DateCreated = DateTime.Now;
         }
 
-
+        public DbSet<TwitterUser> TwitterUsers { get; set; }
+        public DbSet<TwitterAlert> TwitterAlerts { get; set; }
+        public DbSet<GuildOwner> GuildOwners { get; set; }
+        public DateTime DateCreated { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -43,7 +37,7 @@ namespace LittleSteve.Data
 
             modelBuilder.Entity<GuildOwner>(g =>
             {
-                g.HasKey(x => new { x.DiscordId, x.GuildId });
+                g.HasKey(x => new {x.DiscordId, x.GuildId});
                 g.HasIndex(x => x.TwitterUserId);
                 g.HasOne(x => x.TwitterUser).WithMany(x => x.GuildOwners).HasForeignKey(x => x.TwitterUserId);
             });

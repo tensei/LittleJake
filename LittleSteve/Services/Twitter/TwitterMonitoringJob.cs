@@ -32,27 +32,27 @@ namespace LittleSteve.Services.Twitter
                 if (user.LastTweetId == 0)
                 {
                     var tweet = _twitterService.GetLatestTweetForUserAsync(_twitterUserId).AsSync(false);
-                    Log.Information("{date}: {tweet}",tweet.CreatedAt,tweet.FullText ?? tweet.Text);
+                    Log.Information("{date}: {tweet}", tweet.CreatedAt, tweet.FullText ?? tweet.Text);
                     user.LastTweetId = tweet.Id;
                 }
                 else
                 {
-
                     var tweets = _twitterService.GetTweetsSinceAsync(user.Id, user.LastTweetId).AsSync(false).ToList();
 
                     if (!tweets.Any())
                     {
                         return;
                     }
+
                     foreach (var tweet in tweets)
                     {
                         Log.Information("{date}: {tweet}", tweet.CreatedAt, tweet.FullText);
                     }
 
-               
+
                     user.LastTweetId = tweets.Last().Id;
                 }
-              
+
                 _botContext.SaveChanges();
             }
         }

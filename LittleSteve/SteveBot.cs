@@ -5,7 +5,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleSteve.Data;
-using LittleSteve.Data.Entities;
 using LittleSteve.Models;
 using LittleSteve.Services;
 using LittleSteve.Services.Twitter;
@@ -35,19 +34,21 @@ namespace LittleSteve
 #endif
                 DefaultRetryMode = RetryMode.AlwaysRetry
             });
-           
+
             _config = BuildConfig();
             _services = ConfigureServices();
             SetupJobs();
-       
+
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
 
         private void SetupJobs()
         {
             var registry = new Registry();
-            registry.Schedule(() => new TwitterMonitoringJob(962385627663695872,new TwitterService(_services.GetRequiredService<IOptions<BotConfig>>().Value.TwitterTokens),_services.GetService<SteveBotContext>())).WithName("test").ToRunEvery(15).Seconds();
-          //  JobManager.JobStart += info => Log.Information(info.Name); 
+            registry.Schedule(() => new TwitterMonitoringJob(962385627663695872,
+                new TwitterService(_services.GetRequiredService<IOptions<BotConfig>>().Value.TwitterTokens),
+                _services.GetService<SteveBotContext>())).WithName("test").ToRunEvery(15).Seconds();
+            //  JobManager.JobStart += info => Log.Information(info.Name); 
             JobManager.Initialize(registry);
         }
 
@@ -74,14 +75,14 @@ namespace LittleSteve
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
                 .AddScoped(provider => provider.GetRequiredService<IOptions<BotConfig>>().Value)
                 .AddOptions()
-                .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(_config.Get<BotConfig>().ConnectionString),ServiceLifetime.Transient)
+                .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(_config.Get<BotConfig>().ConnectionString),
+                    ServiceLifetime.Transient)
                 .BuildServiceProvider();
         }
 
         private IConfiguration BuildConfig()
         {
             return new ConfigurationBuilder()
-                
                 .AddJsonFile("config.json", false, true)
                 .Build();
         }

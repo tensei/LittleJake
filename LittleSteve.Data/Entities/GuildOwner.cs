@@ -6,6 +6,5 @@
         public long GuildId { get; set; }
         public TwitterUser TwitterUser { get; set; }
         public long TwitterUserId { get; set; }
-
     }
 }
