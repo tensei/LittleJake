@@ -1,6 +1,6 @@
 ﻿namespace LittleSteve.Data.Entities
 {
-    public class TwitterAlert
+    public class TwitterAlertSubscription
     {
         public int Id { get; set; }
         public long DiscordChannelId { get; set; }

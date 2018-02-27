@@ -58,7 +58,7 @@ namespace LittleSteve.Modules
             }
 
            
-            _botContext.Add(new TwitterAlert()
+            _botContext.Add(new TwitterAlertSubscription()
             {
                 DiscordChannelId = (long) guildChannel.Id,
                 TwitterUserId = user.Id

@@ -8,13 +8,15 @@ namespace LittleSteve.Data
     {
         public SteveBotContext(DbContextOptions<SteveBotContext> options) : base(options)
         {
-            DateCreated = DateTime.Now;
+           
         }
 
         public DbSet<TwitterUser> TwitterUsers { get; set; }
-        public DbSet<TwitterAlert> TwitterAlerts { get; set; }
+        public DbSet<TwitterAlertSubscription> TwitterAlerts { get; set; }
         public DbSet<GuildOwner> GuildOwners { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DbSet<TwitchStreamer> TwitchStreamers { get; set; }
+        public DbSet<TwitchAlertSubscription> TwitchAlertSubscriptions { get; set; }
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,14 +27,15 @@ namespace LittleSteve.Data
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.LastTweetId);
                 t.HasMany(x => x.GuildOwners).WithOne(x => x.TwitterUser).HasForeignKey(x => x.TwitterUserId);
-                t.HasMany(x => x.TwitterAlerts).WithOne(x => x.User).HasForeignKey(x => x.TwitterUserId);
+                t.HasMany(x => x.TwitterAlertSubscriptions).WithOne(x => x.User).HasForeignKey(x => x.TwitterUserId);
             });
 
-            modelBuilder.Entity<TwitterAlert>(t =>
+            modelBuilder.Entity<TwitterAlertSubscription>(t =>
             {
+                t.ToTable("TwitterAlertSubscriptions");
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.TwitterUserId);
-                t.HasOne(x => x.User).WithMany(x => x.TwitterAlerts).HasForeignKey(x => x.TwitterUserId);
+                t.HasOne(x => x.User).WithMany(x => x.TwitterAlertSubscriptions).HasForeignKey(x => x.TwitterUserId);
             });
 
             modelBuilder.Entity<GuildOwner>(g =>
@@ -40,6 +43,19 @@ namespace LittleSteve.Data
                 g.HasKey(x => new {x.DiscordId, x.GuildId});
                 g.HasIndex(x => x.TwitterUserId);
                 g.HasOne(x => x.TwitterUser).WithMany(x => x.GuildOwners).HasForeignKey(x => x.TwitterUserId);
+            });
+
+            modelBuilder.Entity<TwitchStreamer>(t =>
+            {
+                t.HasKey(x => x.Id);
+                t.HasMany(x => x.GuildOwners).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
+                t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
+            });
+            modelBuilder.Entity<TwitchAlertSubscription>(t =>
+            {
+                t.HasKey(x => x.Id);
+                t.HasIndex(x => x.TwitchStreamerId);
+                t.HasOne(x => x.TwitchStreamer).WithMany(x => x.TwitchAlertSubscriptions).HasForeignKey(x => x.TwitchStreamerId);
             });
         }
 

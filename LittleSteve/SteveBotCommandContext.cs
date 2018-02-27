@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -15,6 +16,7 @@ namespace LittleSteve
         public SteveBotCommandContext(DiscordSocketClient client, SocketUserMessage msg,IServiceProvider provider) : base(client, msg)
         {
             Provider = provider;
+            
         }
     }
 }

@@ -8,6 +8,6 @@ namespace LittleSteve.Modules
 {
     public class TwitchModule
     {
-        
+      
     }
 }

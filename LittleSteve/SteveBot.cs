@@ -45,6 +45,8 @@ namespace LittleSteve
 
         private void SetupJobs()
         {
+            // Yes I know that these jobs dont scale.
+            // But only one guild is using it and this implementation is easy.
             var registry = new Registry();
 
             using (var context = _services.GetService<SteveBotContext>())

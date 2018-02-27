@@ -29,7 +29,7 @@ namespace LittleSteve.Jobs
         {
             using (_botContext)
             {
-                var user = _botContext.TwitterUsers.Include(x => x.TwitterAlerts).FirstOrDefault(x => x.Id == _twitterUserId);
+                var user = _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefault(x => x.Id == _twitterUserId);
                 if (user is null)
                 {
                     return;
@@ -38,7 +38,7 @@ namespace LittleSteve.Jobs
                 if (user.LastTweetId == 0)
                 {
                     var tweet = _twitterService.GetLatestTweetForUserAsync(_twitterUserId).AsSync(false);
-                    foreach (var twitterAlert in user.TwitterAlerts)
+                    foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
                         var channel = _client.GetChannel((ulong) twitterAlert.DiscordChannelId) as ITextChannel;
                         channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}").AsSync(false);
@@ -55,7 +55,7 @@ namespace LittleSteve.Jobs
                         return;
                     }
 
-                    foreach (var twitterAlert in user.TwitterAlerts)
+                    foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
                         var channel = _client.GetChannel((ulong)twitterAlert.DiscordChannelId) as ITextChannel;
                         

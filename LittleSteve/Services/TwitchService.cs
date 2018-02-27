@@ -8,6 +8,9 @@ namespace LittleSteve.Services
 {
     public class TwitchService
     {
-        
+        public TwitchService()
+        {
+            
+        }
     }
 }
