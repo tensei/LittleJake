@@ -43,5 +43,21 @@ namespace LittleSteve.Modules
 
             await ReplyAsync("", embed: embed.Build());
         }
+
+        [Command("embed")]
+        public async Task TestEmbed()
+        {
+            var embed = new EmbedBuilder()
+                .WithAuthor("Destiny is streaming. Watch live at https://www.destiny.gg/bigscreen", url: "https://www.destiny.gg/bigscreen")
+                .WithTitle("example")
+                .WithUrl("https://www.example.com")
+                .WithThumbnailUrl("https://static-cdn.jtvnw.net/jtv_user_pictures/destiny-profile_image-951fd53950bc2f8b-300x300.png")
+                .WithImageUrl("https://static-cdn.jtvnw.net/previews-ttv/live_user_destiny-1920x1080.jpg?201822801")
+                .AddField("Playing","Terraria",true)
+                .AddField("Viewers",2002,true)
+                .Build();
+            await ReplyAsync("", embed: embed);
+
+        }
     }
 }

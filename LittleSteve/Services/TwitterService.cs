@@ -43,8 +43,8 @@ namespace LittleSteve.Services
         {
             try
             {
-                var user = await _token.Users.ShowAsync(handle);
-                return user;
+               
+                return await _token.Users.ShowAsync(handle); 
             }
             catch (TwitterException e)
             {

@@ -12,5 +12,7 @@ namespace LittleSteve.Data.Entities
         public long DiscordChannelId { get; set; }
         public TwitchStreamer TwitchStreamer { get; set; }
         public long TwitchStreamerId { get; set; }
+        public long MessageId { get; set; }
+        public bool ShouldPin { get; set; }
     }
 }

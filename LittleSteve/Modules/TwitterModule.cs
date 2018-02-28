@@ -43,13 +43,14 @@ namespace LittleSteve.Modules
                 return;
             }
            
-            var user = await _botContext.TwitterUsers.FirstOrDefaultAsync(x => x.Id == userResponse.Id);
+            var user = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(x => x.Id == userResponse.Id);
             if (user is null)
             {
                 user = new TwitterUser()
                 {
                     Id = userResponse.Id.Value,
                     Name = userResponse.Name,
+                    TwitterAlertSubscriptions = new List<TwitterAlertSubscription>(),
                     ScreenName = userResponse.ScreenName
                 };
                 _botContext.TwitterUsers.Add(user);
@@ -57,10 +58,14 @@ namespace LittleSteve.Modules
                 
             }
 
-           
-            _botContext.Add(new TwitterAlertSubscription()
+            if (user.TwitterAlertSubscriptions.Any(x => x.DiscordChannelId == (long) guildChannel.Id))
             {
-                DiscordChannelId = (long) guildChannel.Id,
+                await ReplyAsync($"You already subscribed to {user.ScreenName} in {guildChannel.Name}");
+                return;
+            }
+            user.TwitterAlertSubscriptions.Add(new TwitterAlertSubscription()
+            {
+                DiscordChannelId = (long)guildChannel.Id,
                 TwitterUserId = user.Id
             });
 

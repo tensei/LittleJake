@@ -48,13 +48,20 @@ namespace LittleSteve
             // Yes I know that these jobs dont scale.
             // But only one guild is using it and this implementation is easy.
             var registry = new Registry();
-
+            
+            registry.NonReentrantAsDefault();
             using (var context = _services.GetService<SteveBotContext>())
             {
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
                         _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunEvery(30).Seconds();
+                }
+
+                foreach (var streamer in context.TwitchStreamers)
+                {
+                    registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
+                        _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunEvery(60).Seconds();
                 }
             }
 
@@ -76,18 +83,20 @@ namespace LittleSteve
 
         private IServiceProvider ConfigureServices()
         {
+            var config = _config.Get<BotConfig>();
             return new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 
                 .AddSingleton<CommandHandlingService>()
-                .AddSingleton(new TwitterService(_config.Get<BotConfig>().TwitterTokens))
+                .AddSingleton(new TwitterService(config.TwitterTokens))
+                .AddSingleton(new TwitchService(config.TwitchClientId))
                 .Configure<BotConfig>(_config)
            
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
                 .AddScoped(provider => provider.GetRequiredService<IOptions<BotConfig>>().Value)
                 .AddOptions()
-                .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(_config.Get<BotConfig>().ConnectionString),
+                .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(config.ConnectionString),
                     ServiceLifetime.Transient)
                 .BuildServiceProvider();
         }
