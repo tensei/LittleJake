@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
@@ -13,6 +14,7 @@ using LittleSteve.Data.Entities;
 using LittleSteve.Extensions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TwitchLib.Models.API.v5.Streams;
 
 namespace LittleSteve.Jobs
@@ -42,14 +44,16 @@ namespace LittleSteve.Jobs
                 }
                 var isStreaming = _twitchService.IsUserStreamingAsync(_channelId).AsSync(false);
 
-                if (DateTimeOffset.UtcNow - streamer.StreamEndTime < TimeSpan.FromMinutes(5))
+                //after the streamer goes offline the twitch api will sometimes says the stream is online
+                //we wait for 3 minutes after the last stream to make sure the streamer in actually on or offline
+                if (DateTimeOffset.UtcNow - streamer.StreamEndTime < TimeSpan.FromMinutes(3))
                 {
                     return;
                 }
                 //stream has ended and we are waiting for startup
                 if (!isStreaming && streamer.StreamLength >= TimeSpan.Zero )
                 {
-                    Console.WriteLine("has ended");
+                    Console.WriteLine($"{streamer.Name} stream has ended");
                     return;
                 }
                 // stream started
@@ -60,7 +64,7 @@ namespace LittleSteve.Jobs
                     streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
                         var message = channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream)).AsSync(false);
                         subscription.MessageId = (long) message.Id;
                         
@@ -80,22 +84,24 @@ namespace LittleSteve.Jobs
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
                         
-                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
 
                         if (!(channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) is RestUserMessage message))
                         {
+                            Log.Information("Message was not found");
                             return;
                         }
                         message.ModifyAsync(x => x.Embed = CreateTwitchEmbed(streamer, stream)).AsSync(false);
 
                     }
-                    Console.WriteLine("update this");
+                    Console.WriteLine($"{streamer.Name} embed updated");
                 }
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
+                  
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
-                    streamer.StreamEndTime = DateTimeOffset.UtcNow;
+                    
                     var description = new StringBuilder();
                     description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
                     description.AppendLine($"**Ended at:** {streamer.StreamEndTime:g} UTC");
@@ -112,7 +118,7 @@ namespace LittleSteve.Jobs
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
 
-                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
 
                         if (!(channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) is RestUserMessage message))
                         {
@@ -122,7 +128,7 @@ namespace LittleSteve.Jobs
 
                     }
 
-                    Console.WriteLine("ended");
+                    Console.WriteLine($"{streamer.Name} stream ended");
                 }
 
                 _botContext.SaveChanges();
@@ -142,7 +148,7 @@ namespace LittleSteve.Jobs
                 .WithTitle($"{stream.Channel.Status}")
                 .WithUrl($"https://twitch.tv/{streamer.Name}")
                 .WithThumbnailUrl(stream.Channel.Logo)
-                .AddField("Playing",stream.Game, true)
+                .AddField("Playing",string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game, true)
                 .AddField("Viewers",stream.Viewers, true)
                 //we add the timeseconds so the image wont be used from the cache 
                 .WithImageUrl($"{stream.Preview.Template.Replace("{width}","1920").Replace("{height}","1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")

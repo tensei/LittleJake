@@ -38,7 +38,7 @@ namespace LittleSteve
 
             _config = BuildConfig();
             _services = ConfigureServices();
-            SetupJobs();
+            //SetupJobs();
 
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
@@ -50,18 +50,19 @@ namespace LittleSteve
             var registry = new Registry();
             
             registry.NonReentrantAsDefault();
+            
             using (var context = _services.GetService<SteveBotContext>())
             {
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
-                        _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunEvery(30).Seconds();
+                        _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunNow().AndEvery(60).Seconds();
                 }
 
                 foreach (var streamer in context.TwitchStreamers)
                 {
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
-                        _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunEvery(60).Seconds();
+                        _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunNow().AndEvery(60).Seconds();
                 }
             }
 

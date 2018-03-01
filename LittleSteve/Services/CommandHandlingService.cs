@@ -24,7 +24,10 @@ namespace LittleSteve.Services
             _config = config;
             _commands.Log += BotLogHook.Log;
             _client.MessageReceived += MessageReceived;
+          
         }
+
+       
 
         public async Task InitializeAsync(IServiceProvider provider)
         {
@@ -67,5 +70,7 @@ namespace LittleSteve.Services
             stopwatch.Stop();
             Log.Information($"Took {stopwatch.ElapsedMilliseconds}ms to process: {message}");
         }
+
+        
     }
 }
