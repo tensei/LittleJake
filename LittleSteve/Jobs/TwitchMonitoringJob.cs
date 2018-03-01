@@ -99,7 +99,7 @@ namespace LittleSteve.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-                  
+                    streamer.StreamEndTime = DateTimeOffset.UtcNow;
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
                     
                     var description = new StringBuilder();
@@ -108,7 +108,7 @@ namespace LittleSteve.Jobs
                     description.AppendLine(String.Empty);
                     description.AppendLine($"**Total Time:** {streamer.StreamLength.Humanize(3)}");
 
-
+                    
                     var embed = new EmbedBuilder()
                         .WithAuthor($"{streamer.Name} was live", url: $"https://twitch.tv/{streamer.Name}")
                         .WithThumbnailUrl(user.Logo)

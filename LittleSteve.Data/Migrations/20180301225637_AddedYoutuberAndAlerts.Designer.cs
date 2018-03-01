@@ -11,9 +11,10 @@ using System;
 namespace LittleSteve.Data.Migrations
 {
     [DbContext(typeof(SteveBotContext))]
-    partial class SteveBotContextModelSnapshot : ModelSnapshot
+    [Migration("20180301225637_AddedYoutuberAndAlerts")]
+    partial class AddedYoutuberAndAlerts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

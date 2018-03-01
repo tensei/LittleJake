@@ -16,6 +16,8 @@ namespace LittleSteve.Data
         public DbSet<GuildOwner> GuildOwners { get; set; }
         public DbSet<TwitchStreamer> TwitchStreamers { get; set; }
         public DbSet<TwitchAlertSubscription> TwitchAlertSubscriptions { get; set; }
+        public DbSet<Youtuber> Youtubers { get; set; }
+        public DbSet<YoutubeAlertSubscription> YoutubeAlertSubscriptions { get; set; }
         
 
 
@@ -56,6 +58,19 @@ namespace LittleSteve.Data
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.TwitchStreamerId);
                 t.HasOne(x => x.TwitchStreamer).WithMany(x => x.TwitchAlertSubscriptions).HasForeignKey(x => x.TwitchStreamerId);
+            });
+            modelBuilder.Entity<Youtuber>(t =>
+            {
+                t.HasKey(x => x.Id);
+                t.HasMany(x => x.GuildOwners).WithOne(x => x.Youtuber).HasForeignKey(x => x.YoutuberId);
+                t.HasMany(x => x.YoutubeAlertSubscriptions).WithOne(x => x.Youtuber).HasForeignKey(x => x.YoutuberId);
+            });
+
+            modelBuilder.Entity<YoutubeAlertSubscription>(t =>
+            {
+                t.HasKey(x => x.Id);
+                t.HasIndex(x => x.YoutuberId);
+                t.HasOne(x => x.Youtuber).WithMany(x => x.YoutubeAlertSubscriptions).HasForeignKey(x => x.YoutuberId);
             });
         }
 
