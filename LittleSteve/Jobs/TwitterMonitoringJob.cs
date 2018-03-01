@@ -17,7 +17,8 @@ namespace LittleSteve.Jobs
         private readonly TwitterService _twitterService;
         private readonly long _twitterUserId;
 
-        public TwitterMonitoringJob(long twitterUserId, TwitterService twitterService, SteveBotContext botContext,DiscordSocketClient client)
+        public TwitterMonitoringJob(long twitterUserId, TwitterService twitterService, SteveBotContext botContext,
+            DiscordSocketClient client)
         {
             _twitterUserId = twitterUserId;
             _twitterService = twitterService;
@@ -29,7 +30,8 @@ namespace LittleSteve.Jobs
         {
             using (_botContext)
             {
-                var user = _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefault(x => x.Id == _twitterUserId);
+                var user = _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions)
+                    .FirstOrDefault(x => x.Id == _twitterUserId);
                 if (user is null)
                 {
                     return;
@@ -41,8 +43,10 @@ namespace LittleSteve.Jobs
                     foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
                         var channel = _client.GetChannel((ulong) twitterAlert.DiscordChannelId) as ITextChannel;
-                        channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}").AsSync(false);
+                        channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}")
+                            .AsSync(false);
                     }
+
                     Log.Information("{date}: {tweet}", tweet.CreatedAt, tweet.FullText ?? tweet.Text);
                     user.LastTweetId = tweet.Id;
                 }
@@ -57,15 +61,15 @@ namespace LittleSteve.Jobs
 
                     foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong)twitterAlert.DiscordChannelId) as ITextChannel;
-                        
+                        var channel = _client.GetChannel((ulong) twitterAlert.DiscordChannelId) as ITextChannel;
+
                         foreach (var tweet in tweets)
                         {
-                            channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}").AsSync(false);
+                            channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}")
+                                .AsSync(false);
                             Log.Information("{date}: {tweet}", tweet.CreatedAt, tweet.FullText);
                         }
                     }
-                 
 
 
                     user.LastTweetId = tweets.Last().Id;

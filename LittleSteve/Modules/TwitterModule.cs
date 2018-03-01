@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -20,16 +18,17 @@ namespace LittleSteve.Modules
     [Group("twitter")]
     public class TwitterModule : ModuleBase<SteveBotCommandContext>
     {
-        private readonly TwitterService _twitterService;
         private readonly SteveBotContext _botContext;
         private readonly BotConfig _config;
+        private readonly TwitterService _twitterService;
 
-        public TwitterModule(TwitterService twitterService,SteveBotContext botContext,BotConfig config)
+        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config)
         {
             _twitterService = twitterService;
             _botContext = botContext;
             _config = config;
         }
+
         [Command("add")]
         [RequireOwnerOrAdmin]
         public async Task AddTwitter(string twitterName, IGuildChannel guildChannel)
@@ -42,11 +41,12 @@ namespace LittleSteve.Modules
                 await ReplyAsync("User Not Found");
                 return;
             }
-           
-            var user = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(x => x.Id == userResponse.Id);
+
+            var user = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions)
+                .FirstOrDefaultAsync(x => x.Id == userResponse.Id);
             if (user is null)
             {
-                user = new TwitterUser()
+                user = new TwitterUser
                 {
                     Id = userResponse.Id.Value,
                     Name = userResponse.Name,
@@ -54,8 +54,10 @@ namespace LittleSteve.Modules
                     ScreenName = userResponse.ScreenName
                 };
                 _botContext.TwitterUsers.Add(user);
-                JobManager.AddJob(() => new TwitterMonitoringJob(user.Id,_twitterService,Context.Provider.GetService<SteveBotContext>(),Context.Client).Execute(),s => s.WithName(userResponse.ScreenName).ToRunEvery(30).Seconds() );
-                
+                JobManager.AddJob(
+                    () => new TwitterMonitoringJob(user.Id, _twitterService,
+                        Context.Provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                    s => s.WithName(userResponse.ScreenName).ToRunEvery(30).Seconds());
             }
 
             if (user.TwitterAlertSubscriptions.Any(x => x.DiscordChannelId == (long) guildChannel.Id))
@@ -63,9 +65,10 @@ namespace LittleSteve.Modules
                 await ReplyAsync($"You already subscribed to {user.ScreenName} in {guildChannel.Name}");
                 return;
             }
-            user.TwitterAlertSubscriptions.Add(new TwitterAlertSubscription()
+
+            user.TwitterAlertSubscriptions.Add(new TwitterAlertSubscription
             {
-                DiscordChannelId = (long)guildChannel.Id,
+                DiscordChannelId = (long) guildChannel.Id,
                 TwitterUserId = user.Id
             });
 

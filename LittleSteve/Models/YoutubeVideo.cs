@@ -10,6 +10,3 @@ namespace LittleSteve.Models
         public string User { get; set; }
     }
 }
-
-
-

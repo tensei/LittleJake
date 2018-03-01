@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleSteve.Data;
@@ -14,21 +11,25 @@ namespace LittleSteve.Jobs
 {
     public class YoutubeMonitoringJob : IJob
     {
-        private readonly string _channelId;
         private readonly SteveBotContext _botContext;
+        private readonly string _channelId;
+
         private readonly DiscordSocketClient _client;
-       // private readonly string _feedUrl;
-        public YoutubeMonitoringJob(string channelId,SteveBotContext botContext,DiscordSocketClient client)
+
+        // private readonly string _feedUrl;
+        public YoutubeMonitoringJob(string channelId, SteveBotContext botContext, DiscordSocketClient client)
         {
             _channelId = channelId;
             _botContext = botContext;
             _client = client;
-           // _feedUrl = $@"https://www.youtube.com/feeds/videos.xml?channel_id={_channelId}";
+            // _feedUrl = $@"https://www.youtube.com/feeds/videos.xml?channel_id={_channelId}";
         }
+
         public void Execute()
         {
-            var youtuber = _botContext.Youtubers.Include(x => x.YoutubeAlertSubscriptions).FirstOrDefault(x => x.Id == _channelId);
-            
+            var youtuber = _botContext.Youtubers.Include(x => x.YoutubeAlertSubscriptions)
+                .FirstOrDefault(x => x.Id == _channelId);
+
             var video = YoutubeFeedReader.GetLastestVideoFromFeed(_channelId).AsSync(false);
 
             if (video.DatePublished - youtuber.LatestVideoDate <= TimeSpan.Zero)
@@ -37,7 +38,7 @@ namespace LittleSteve.Jobs
             }
 
             youtuber.LatestVideoDate = video.DatePublished;
-            
+
             foreach (var subscription in youtuber.YoutubeAlertSubscriptions)
             {
                 var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as SocketTextChannel;

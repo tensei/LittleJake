@@ -1,5 +1,4 @@
-﻿using System;
-using LittleSteve.Data.Entities;
+﻿using LittleSteve.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleSteve.Data
@@ -8,7 +7,6 @@ namespace LittleSteve.Data
     {
         public SteveBotContext(DbContextOptions<SteveBotContext> options) : base(options)
         {
-           
         }
 
         public DbSet<TwitterUser> TwitterUsers { get; set; }
@@ -18,7 +16,6 @@ namespace LittleSteve.Data
         public DbSet<TwitchAlertSubscription> TwitchAlertSubscriptions { get; set; }
         public DbSet<Youtuber> Youtubers { get; set; }
         public DbSet<YoutubeAlertSubscription> YoutubeAlertSubscriptions { get; set; }
-        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,13 +48,15 @@ namespace LittleSteve.Data
             {
                 t.HasKey(x => x.Id);
                 t.HasMany(x => x.GuildOwners).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
-                t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
+                t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer)
+                    .HasForeignKey(x => x.TwitchStreamerId);
             });
             modelBuilder.Entity<TwitchAlertSubscription>(t =>
             {
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.TwitchStreamerId);
-                t.HasOne(x => x.TwitchStreamer).WithMany(x => x.TwitchAlertSubscriptions).HasForeignKey(x => x.TwitchStreamerId);
+                t.HasOne(x => x.TwitchStreamer).WithMany(x => x.TwitchAlertSubscriptions)
+                    .HasForeignKey(x => x.TwitchStreamerId);
             });
             modelBuilder.Entity<Youtuber>(t =>
             {
@@ -73,7 +72,5 @@ namespace LittleSteve.Data
                 t.HasOne(x => x.Youtuber).WithMany(x => x.YoutubeAlertSubscriptions).HasForeignKey(x => x.YoutuberId);
             });
         }
-
-        
     }
 }

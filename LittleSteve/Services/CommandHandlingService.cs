@@ -24,10 +24,8 @@ namespace LittleSteve.Services
             _config = config;
             _commands.Log += BotLogHook.Log;
             _client.MessageReceived += MessageReceived;
-          
         }
 
-       
 
         public async Task InitializeAsync(IServiceProvider provider)
         {
@@ -58,19 +56,16 @@ namespace LittleSteve.Services
                 return;
             }
 
-            var context = new SteveBotCommandContext(_client, message,_provider);
+            var context = new SteveBotCommandContext(_client, message, _provider);
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
             if (!result.IsSuccess)
             {
-
                 Log.Error($"{result.Error}: {result.ErrorReason}");
             }
 
             stopwatch.Stop();
             Log.Information($"Took {stopwatch.ElapsedMilliseconds}ms to process: {message}");
         }
-
-        
     }
 }

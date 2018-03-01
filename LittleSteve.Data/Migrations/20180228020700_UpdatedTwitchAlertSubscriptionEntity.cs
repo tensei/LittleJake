@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace LittleSteve.Data.Migrations
 {
@@ -9,14 +7,14 @@ namespace LittleSteve.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<long>(
-                name: "MessageId",
-                table: "TwitchAlertSubscriptions",
+                "MessageId",
+                "TwitchAlertSubscriptions",
                 nullable: false,
                 defaultValue: 0L);
 
             migrationBuilder.AddColumn<bool>(
-                name: "ShouldPin",
-                table: "TwitchAlertSubscriptions",
+                "ShouldPin",
+                "TwitchAlertSubscriptions",
                 nullable: false,
                 defaultValue: false);
         }
@@ -24,12 +22,12 @@ namespace LittleSteve.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "MessageId",
-                table: "TwitchAlertSubscriptions");
+                "MessageId",
+                "TwitchAlertSubscriptions");
 
             migrationBuilder.DropColumn(
-                name: "ShouldPin",
-                table: "TwitchAlertSubscriptions");
+                "ShouldPin",
+                "TwitchAlertSubscriptions");
         }
     }
 }

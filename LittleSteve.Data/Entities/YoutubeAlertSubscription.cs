@@ -7,6 +7,5 @@
         public Youtuber Youtuber { get; set; }
         public string YoutuberId { get; set; }
         public long MessageId { get; set; }
-        
     }
 }

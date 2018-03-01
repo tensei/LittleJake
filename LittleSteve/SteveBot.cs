@@ -38,7 +38,7 @@ namespace LittleSteve
 
             _config = BuildConfig();
             _services = ConfigureServices();
-          //  SetupJobs();
+            //  SetupJobs();
 
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
@@ -48,31 +48,34 @@ namespace LittleSteve
             // Yes I know that these jobs dont scale.
             // But only one guild is using it and this implementation is easy.
             var registry = new Registry();
-            
+
             registry.NonReentrantAsDefault();
-            
+
             using (var context = _services.GetService<SteveBotContext>())
             {
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
-                        _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunNow().AndEvery(60).Seconds();
+                            _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunNow()
+                        .AndEvery(60).Seconds();
                 }
 
                 foreach (var streamer in context.TwitchStreamers)
                 {
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
-                        _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunNow().AndEvery(60).Seconds();
+                            _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunNow()
+                        .AndEvery(60).Seconds();
                 }
 
                 foreach (var youtuber in context.Youtubers)
                 {
-                    
-                    registry.Schedule(()=> new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(),_client)).WithName(youtuber.Id).ToRunNow().AndEvery(60).Seconds();
+                    registry.Schedule(() =>
+                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(), _client))
+                        .WithName(youtuber.Id).ToRunNow().AndEvery(60).Seconds();
                 }
             }
 
-            
+
             JobManager.Initialize(registry);
         }
 
@@ -94,12 +97,11 @@ namespace LittleSteve
             return new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
-                
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
                 .Configure<BotConfig>(_config)
-           
+
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
                 .AddScoped(provider => provider.GetRequiredService<IOptions<BotConfig>>().Value)
                 .AddOptions()
@@ -115,6 +117,4 @@ namespace LittleSteve
                 .Build();
         }
     }
-
-   
 }

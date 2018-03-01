@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -18,11 +16,11 @@ namespace LittleSteve.Modules
     [Group("twitch")]
     public class TwitchModule : ModuleBase<SteveBotCommandContext>
     {
-        private readonly TwitchService _twitchService;
         private readonly SteveBotContext _botContext;
-   
+        private readonly TwitchService _twitchService;
 
-        public TwitchModule(TwitchService twitchService,SteveBotContext botContext)
+
+        public TwitchModule(TwitchService twitchService, SteveBotContext botContext)
         {
             _twitchService = twitchService;
             _botContext = botContext;
@@ -33,7 +31,7 @@ namespace LittleSteve.Modules
         {
             var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
 
-            if (userResponse is null )
+            if (userResponse is null)
             {
                 await ReplyAsync("User Not Found");
                 return;
@@ -44,15 +42,17 @@ namespace LittleSteve.Modules
 
             if (user is null)
             {
-                user = new TwitchStreamer()
+                user = new TwitchStreamer
                 {
                     Id = long.Parse(userResponse.Id),
                     Name = userResponse.DisplayName,
                     TwitchAlertSubscriptions = new List<TwitchAlertSubscription>()
-                    
                 };
                 _botContext.TwitchStreamers.Add(user);
-                JobManager.AddJob(() => new TwitchMonitoringJob(user.Id, _twitchService, Context.Provider.GetService<SteveBotContext>(), Context.Client).Execute(), s => s.WithName(userResponse.DisplayName).ToRunEvery(60).Seconds());
+                JobManager.AddJob(
+                    () => new TwitchMonitoringJob(user.Id, _twitchService,
+                        Context.Provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                    s => s.WithName(userResponse.DisplayName).ToRunEvery(60).Seconds());
             }
 
             if (user.TwitchAlertSubscriptions.Any(x => x.DiscordChannelId == (long) guildChannel.Id))
@@ -61,11 +61,10 @@ namespace LittleSteve.Modules
                 return;
             }
 
-            user.TwitchAlertSubscriptions.Add(new TwitchAlertSubscription()
+            user.TwitchAlertSubscriptions.Add(new TwitchAlertSubscription
             {
-                DiscordChannelId = (long)guildChannel.Id,
-                TwitchStreamerId = user.Id,
-
+                DiscordChannelId = (long) guildChannel.Id,
+                TwitchStreamerId = user.Id
             });
 
             var changes = _botContext.SaveChanges();
@@ -78,9 +77,6 @@ namespace LittleSteve.Modules
             {
                 await ReplyAsync($"Unable to create Alert for {user.Name}");
             }
-
-
         }
-        
     }
 }
