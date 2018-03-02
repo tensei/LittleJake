@@ -67,7 +67,7 @@ namespace LittleSteve.Jobs
                     streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as SocketTextChannel;
+                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
                         var message = channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream))
                             .AsSync(false);
                         subscription.MessageId = (long) message.Id;
@@ -88,10 +88,10 @@ namespace LittleSteve.Jobs
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as SocketTextChannel;
-
-                        if (!(channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) is RestUserMessage
-                            message))
+                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
+                        var message =
+                            channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
+                        if (message is null)
                         {
                             Log.Information("Message was not found");
                             return;
@@ -124,11 +124,12 @@ namespace LittleSteve.Jobs
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as SocketTextChannel;
-
-                        if (!(channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) is RestUserMessage
-                            message))
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        var message =
+                            channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
+                        if (message is null)
                         {
+                            Log.Information("Message was not found");
                             return;
                         }
 

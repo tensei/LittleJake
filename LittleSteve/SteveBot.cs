@@ -26,7 +26,7 @@ namespace LittleSteve
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                MessageCacheSize = 1000,
+                MessageCacheSize = 100,
                 AlwaysDownloadUsers = true,
 #if DEBUG
                 LogLevel = LogSeverity.Verbose,
@@ -38,7 +38,7 @@ namespace LittleSteve
 
             _config = BuildConfig();
             _services = ConfigureServices();
-            //  SetupJobs();
+             
 
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
@@ -56,21 +56,21 @@ namespace LittleSteve
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
-                            _services.GetService<SteveBotContext>(), _client)).WithName(user.ScreenName).ToRunNow()
+                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>())).WithName(user.ScreenName).ToRunNow()
                         .AndEvery(60).Seconds();
                 }
 
                 foreach (var streamer in context.TwitchStreamers)
                 {
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
-                            _services.GetService<SteveBotContext>(), _client)).WithName(streamer.Name).ToRunNow()
-                        .AndEvery(60).Seconds();
+                            _services.GetService<SteveBotContext>(),_services.GetService<DiscordSocketClient>())).WithName(streamer.Name).ToRunNow()
+                        .AndEvery(15).Seconds();
                 }
 
                 foreach (var youtuber in context.Youtubers)
                 {
                     registry.Schedule(() =>
-                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(), _client))
+                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
                         .WithName(youtuber.Id).ToRunNow().AndEvery(60).Seconds();
                 }
             }
@@ -82,7 +82,12 @@ namespace LittleSteve
         public async Task StartAsync()
         {
             _client.Log += BotLogHook.Log;
-            _client.Ready += async () => { await _client.SetGameAsync("Deathmatch with Wander"); };
+            _client.Ready += async () =>
+            {
+                await _client.SetGameAsync("Deathmatch with Wander");
+                SetupJobs();
+
+            };
             await _client.LoginAsync(TokenType.Bot, _config.Get<BotConfig>().DiscordToken);
 
             await _client.StartAsync();
