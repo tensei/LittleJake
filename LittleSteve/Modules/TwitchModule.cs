@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace LittleSteve.Modules
 {
     [Group("twitch")]
+    [RequireContext(ContextType.Guild)]
     public class TwitchModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;

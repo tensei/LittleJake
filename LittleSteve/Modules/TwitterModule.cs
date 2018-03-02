@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace LittleSteve.Modules
 {
     [Group("twitter")]
+    [RequireContext(ContextType.Guild)]
     public class TwitterModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;

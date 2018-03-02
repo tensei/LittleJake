@@ -35,6 +35,7 @@ namespace LittleSteve.Services
 
         private async Task MessageReceived(SocketMessage rawMessage)
         {
+            
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Ignore system messages and messages from bots
@@ -57,6 +58,7 @@ namespace LittleSteve.Services
             }
 
             var context = new SteveBotCommandContext(_client, message, _provider);
+            
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
             if (!result.IsSuccess)

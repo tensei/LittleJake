@@ -64,14 +64,14 @@ namespace LittleSteve
                 {
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
                             _services.GetService<SteveBotContext>(),_services.GetService<DiscordSocketClient>())).WithName(streamer.Name).ToRunNow()
-                        .AndEvery(15).Seconds();
+                        .AndEvery(60).Seconds();
                 }
 
                 foreach (var youtuber in context.Youtubers)
                 {
                     registry.Schedule(() =>
                             new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
-                        .WithName(youtuber.Id).ToRunNow().AndEvery(60).Seconds();
+                        .WithName(youtuber.Id).ToRunNow().AndEvery(5).Minutes();
                 }
             }
 
