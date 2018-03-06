@@ -15,15 +15,8 @@ namespace LittleSteve
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
 
-
-            try
-            {
-                await new SteveBot().StartAsync();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Shits Fucked Up");
-            }
+            await new SteveBot().StartAsync();
+           
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using FluentScheduler;
@@ -45,8 +46,8 @@ namespace LittleSteve
 
         private void SetupJobs()
         {
-            // Yes I know that these jobs dont scale.
-            // But only one guild is using it and this implementation is easy.
+            // These jobs wont scale well
+            // But only one guild is using it and this implementation is meets my needs.
             var registry = new Registry();
 
             registry.NonReentrantAsDefault();
@@ -88,6 +89,7 @@ namespace LittleSteve
                 SetupJobs();
 
             };
+          
             await _client.LoginAsync(TokenType.Bot, _config.Get<BotConfig>().DiscordToken);
 
             await _client.StartAsync();
@@ -95,6 +97,8 @@ namespace LittleSteve
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
             await Task.Delay(-1);
         }
+
+      
 
         private IServiceProvider ConfigureServices()
         {
@@ -105,6 +109,7 @@ namespace LittleSteve
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
+                .AddSingleton<InteractiveService>()
                 .Configure<BotConfig>(_config)
 
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
