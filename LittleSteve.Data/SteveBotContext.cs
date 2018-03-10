@@ -1,4 +1,5 @@
-﻿using LittleSteve.Data.Entities;
+﻿using System;
+using LittleSteve.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleSteve.Data
@@ -25,7 +26,7 @@ namespace LittleSteve.Data
             {
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.LastTweetId);
-                t.HasMany(x => x.GuildOwners).WithOne(x => x.TwitterUser).HasForeignKey(x => x.TwitterUserId);
+               
                 t.HasMany(x => x.TwitterAlertSubscriptions).WithOne(x => x.User).HasForeignKey(x => x.TwitterUserId);
             });
 
@@ -40,14 +41,17 @@ namespace LittleSteve.Data
             modelBuilder.Entity<GuildOwner>(g =>
             {
                 g.HasKey(x => new {x.DiscordId, x.GuildId});
+                
                 g.HasIndex(x => x.TwitterUserId);
-                g.HasOne(x => x.TwitterUser).WithMany(x => x.GuildOwners).HasForeignKey(x => x.TwitterUserId);
+                
             });
 
             modelBuilder.Entity<TwitchStreamer>(t =>
             {
                 t.HasKey(x => x.Id);
-                t.HasMany(x => x.GuildOwners).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
+                t.Property(x => x.SteamStartTime).HasDefaultValue(new DateTimeOffset());
+                t.Property(x => x.StreamEndTime).HasDefaultValue(new DateTimeOffset());
+              
                 t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer)
                     .HasForeignKey(x => x.TwitchStreamerId);
             });
@@ -61,7 +65,8 @@ namespace LittleSteve.Data
             modelBuilder.Entity<Youtuber>(t =>
             {
                 t.HasKey(x => x.Id);
-                t.HasMany(x => x.GuildOwners).WithOne(x => x.Youtuber).HasForeignKey(x => x.YoutuberId);
+                t.Property(x => x.LatestVideoDate).HasDefaultValue(new DateTimeOffset());
+              
                 t.HasMany(x => x.YoutubeAlertSubscriptions).WithOne(x => x.Youtuber).HasForeignKey(x => x.YoutuberId);
             });
 

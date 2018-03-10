@@ -9,6 +9,6 @@ namespace LittleSteve.Data.Entities
         public string Name { get; set; }
         public DateTimeOffset LatestVideoDate { get; set; }
         public ICollection<YoutubeAlertSubscription> YoutubeAlertSubscriptions { get; set; }
-        public ICollection<GuildOwner> GuildOwners { get; set; }
+       
     }
 }

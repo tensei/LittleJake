@@ -9,6 +9,6 @@ namespace LittleSteve.Data.Entities
         public string ScreenName { get; set; }
         public long LastTweetId { get; set; }
         public ICollection<TwitterAlertSubscription> TwitterAlertSubscriptions { get; set; }
-        public ICollection<GuildOwner> GuildOwners { get; set; }
+       
     }
 }

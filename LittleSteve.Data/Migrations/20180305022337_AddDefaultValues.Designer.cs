@@ -11,9 +11,10 @@ using System;
 namespace LittleSteve.Data.Migrations
 {
     [DbContext(typeof(SteveBotContext))]
-    partial class SteveBotContextModelSnapshot : ModelSnapshot
+    [Migration("20180305022337_AddDefaultValues")]
+    partial class AddDefaultValues
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +35,11 @@ namespace LittleSteve.Data.Migrations
 
                     b.HasKey("DiscordId", "GuildId");
 
+                    b.HasIndex("TwitchStreamerId");
+
                     b.HasIndex("TwitterUserId");
+
+                    b.HasIndex("YoutuberId");
 
                     b.ToTable("GuildOwners");
                 });
@@ -145,6 +150,23 @@ namespace LittleSteve.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Youtubers");
+                });
+
+            modelBuilder.Entity("LittleSteve.Data.Entities.GuildOwner", b =>
+                {
+                    b.HasOne("LittleSteve.Data.Entities.TwitchStreamer", "TwitchStreamer")
+                        .WithMany("GuildOwners")
+                        .HasForeignKey("TwitchStreamerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("LittleSteve.Data.Entities.TwitterUser", "TwitterUser")
+                        .WithMany("GuildOwners")
+                        .HasForeignKey("TwitterUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("LittleSteve.Data.Entities.Youtuber", "Youtuber")
+                        .WithMany("GuildOwners")
+                        .HasForeignKey("YoutuberId");
                 });
 
             modelBuilder.Entity("LittleSteve.Data.Entities.TwitchAlertSubscription", b =>

@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20180227022607_AddedTwitchEntities.cs" />
     <Compile Remove="Migrations\20180227023054_AddedTwitchEntities.cs" />
+    <Compile Remove="Migrations\20180305013915_AddMessagesToOwner.cs" />
+    <Compile Remove="Migrations\20180309234755_RemoveGuildOwnerForeignKeys.cs" />
   </ItemGroup>
 
   <ItemGroup>
