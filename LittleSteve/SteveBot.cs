@@ -40,7 +40,7 @@ namespace LittleSteve
             _config = BuildConfig();
             _services = ConfigureServices();
              
-
+            
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
 
@@ -82,6 +82,8 @@ namespace LittleSteve
 
         public async Task StartAsync()
         {
+           
+        
             _client.Log += BotLogHook.Log;
             _client.Ready += async () =>
             {
@@ -107,13 +109,15 @@ namespace LittleSteve
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
                 .AddSingleton<InteractiveService>()
+               
                 .Configure<BotConfig>(_config)
 
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
-                .AddScoped(provider => provider.GetRequiredService<IOptions<BotConfig>>().Value)
+                .AddTransient(provider => provider.GetRequiredService<IOptionsMonitor<BotConfig>>().CurrentValue)
                 .AddOptions()
                 .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(config.ConnectionString),
                     ServiceLifetime.Transient)

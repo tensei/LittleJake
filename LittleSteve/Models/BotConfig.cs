@@ -17,7 +17,7 @@ namespace LittleSteve.Models
 
         [JsonProperty("DestinyCalendar")] public string DestinyCalendar { get; set; }
 
-        [JsonProperty("CatImgurAlbumId")] public string ImgurAlbumId { get; set; }
+        [JsonProperty("ImgurAlbumId")] public string ImgurAlbumId { get; set; }
 
         public string Prefix { get; set; }
     }
