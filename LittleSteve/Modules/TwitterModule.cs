@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -28,6 +29,17 @@ namespace LittleSteve.Modules
             _twitterService = twitterService;
             _botContext = botContext;
             _config = config;
+        }
+        [Command]
+        public async Task Twitter()
+        {
+            if (Context.GuildOwner is null || Context.GuildOwner.TwitterUserId == 0)
+            {
+                return;
+            }
+            var tweet = await _twitterService.GetLatestTweetForUserAsync(Context.GuildOwner.TwitterUserId);
+
+            await ReplyAsync($@"https://twitter.com/{tweet.User.ScreenName}/status/{tweet.Id}");
         }
 
         [Command("add")]
@@ -85,6 +97,43 @@ namespace LittleSteve.Modules
             }
         }
 
+        [Command("remove")]
+        [RequireOwnerOrAdmin]
+        public async Task RemoveTwitter(string twitterName, IGuildChannel guildChannel)
+        {
+            var twitter = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(x =>
+                x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
+
+            if (twitter is null)
+            {
+                await ReplyAsync("Twitter Not Found");
+                return;
+            }
+            var alert = twitter.TwitterAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long)guildChannel.Id);
+            if (alert is null)
+            {
+                await ReplyAsync($"This channel doesnt contain an alert for {twitter.ScreenName}");
+                return;
+            }
+            twitter.TwitterAlertSubscriptions.Remove(alert);
+            if (Context.GuildOwner.TwitterUserId == twitter.Id)
+            {
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                owner.TwitterUserId = 0;
+            }
+
+            var changes = _botContext.SaveChanges();
+
+            if (changes > 0)
+            {
+                await ReplyAsync($"Alert for {twitter.ScreenName} removed from {guildChannel.Name}");
+            }
+            else
+            {
+                await ReplyAsync($"Unable to remove Alert for {twitter.ScreenName}");
+            }
+
+        }
         protected override void AfterExecute(CommandInfo command)
         {
             _botContext.Dispose();
