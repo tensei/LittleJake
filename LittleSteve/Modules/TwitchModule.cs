@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using FluentScheduler;
+using Humanizer;
 using LittleSteve.Data;
 using LittleSteve.Data.Entities;
 using LittleSteve.Jobs;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TimeUnit = Humanizer.Localisation.TimeUnit;
 
 namespace LittleSteve.Modules
 {
@@ -26,7 +29,43 @@ namespace LittleSteve.Modules
             _twitchService = twitchService;
             _botContext = botContext;
         }
+        [Command]
+        public async Task Twitch()
+        {
+            if (Context.GuildOwner is null || Context.GuildOwner.TwitchStreamerId == 0)
+            {
+                return;
+            }
 
+
+            var stream = await _twitchService.GetStreamAsync(Context.GuildOwner.TwitchStreamerId);
+            var twitch =
+                await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Id == Context.GuildOwner.TwitchStreamerId);
+            if (stream is null)
+            {
+                
+                var timeAgo = DateTimeOffset.UtcNow - twitch.StreamEndTime;
+                await ReplyAsync(
+                    $"**Stream Offline**\n{twitch.Name} was last seen {timeAgo.Humanize(3, minUnit: TimeUnit.Second,collectionSeparator:" ")} ago");
+            }
+            else
+            {
+                var timeLive = DateTimeOffset.UtcNow - twitch.SteamStartTime;
+                var embed =  new EmbedBuilder()
+                    .WithAuthor($"{twitch.Name} is live", url: $"https://twitch.tv/{twitch.Name}")
+                    .WithTitle($"{stream.Channel.Status}")
+                    .WithUrl($"https://twitch.tv/{twitch.Name}")
+                    .WithThumbnailUrl(stream.Channel.Logo)
+                    .AddField("Playing", string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game, true)
+                    .AddField("Viewers", stream.Viewers, true)
+                    //we add the timeseconds so the image wont be used from the cache 
+                    .WithImageUrl(
+                        $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
+                    .WithFooter($"Live for {timeLive.Humanize(2,maxUnit:TimeUnit.Hour,minUnit:TimeUnit.Second)}")
+                    .Build();
+                await ReplyAsync(string.Empty, embed: embed);
+            }
+        }
         [Command("add")]
         public async Task AddTwitch(string twitchName, IGuildChannel guildChannel)
         {
@@ -77,6 +116,46 @@ namespace LittleSteve.Modules
             else
             {
                 await ReplyAsync($"Unable to create Alert for {user.Name}");
+            }
+        }
+
+        [Command("remove")]
+        public async Task RemoveTwitch(string twitchName, IGuildChannel guildChannel)
+        {
+            var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
+
+            if (userResponse is null)
+            {
+                await ReplyAsync("User Not Found");
+                return;
+            }
+
+            var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
+                .FirstOrDefaultAsync(x => x.Id == long.Parse(userResponse.Id));
+
+            var alert = user.TwitchAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long) guildChannel.Id);
+            user.TwitchAlertSubscriptions.Remove(alert);
+            if (Context.GuildOwner.TwitchStreamerId == user.Id)
+            {
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                owner.TwitchStreamerId = 0;
+            }
+            
+            
+            if (alert is null)
+            {
+                await ReplyAsync($"This channel doesnt contain an alert for {user.Name}");
+                return;
+            }
+            var changes = _botContext.SaveChanges();
+
+            if (changes > 0)
+            {
+                await ReplyAsync($"Alert for {user.Name} removed from {guildChannel.Name}");
+            }
+            else
+            {
+                await ReplyAsync($"Unable to remove Alert for {user.Name}");
             }
         }
     }
