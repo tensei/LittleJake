@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -23,10 +24,21 @@ namespace LittleSteve.Modules
         {
             _botContext = botContext;
         }
+        [Command]
+        public async Task Youtube()
+        {
+            if (string.IsNullOrWhiteSpace(Context.GuildOwner?.YoutuberId))
+            {
+                return;
+            }
 
+            var video = await YoutubeFeedReader.GetLastestVideoFromFeed(Context.GuildOwner.YoutuberId);
+            await ReplyAsync(video.Url);
+        }
         [Command("add")]
         public async Task AddTwitch(string youtubeId, IGuildChannel guildChannel)
         {
+          
             var video = await YoutubeFeedReader.GetLastestVideoFromFeed(youtubeId);
             if (video is null)
             {
@@ -73,6 +85,45 @@ namespace LittleSteve.Modules
             {
                 await ReplyAsync($"Unable to create Alert for {youtuber.Name}");
             }
+        }
+
+        [Command("remove")]
+        public async Task RemoveYoutube(string youtubeName, IGuildChannel guildChannel)
+        {
+            var youtuber = await _botContext.Youtubers.Include(x=> x.YoutubeAlertSubscriptions).FirstOrDefaultAsync(x =>
+                x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
+
+            if (youtuber is null)
+            {
+                await ReplyAsync("Channel Not Found");
+                return;
+            }
+
+            var alert = youtuber.YoutubeAlertSubscriptions.FirstOrDefault(x =>
+                x.DiscordChannelId == (long) guildChannel.Id);
+            if (alert is null)
+            {
+                await ReplyAsync($"This channel doesnt contain an alert for {youtuber.Name}");
+                return;
+            }
+            youtuber.YoutubeAlertSubscriptions.Remove(alert);
+            if (Context.GuildOwner.YoutuberId == youtuber.Id)
+            {
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                owner.TwitchStreamerId = 0;
+            }
+
+            var changes = _botContext.SaveChanges();
+
+            if (changes > 0)
+            {
+                await ReplyAsync($"Alert for {youtuber.Name} removed from {guildChannel.Name}");
+            }
+            else
+            {
+                await ReplyAsync($"Unable to remove Alert for {youtuber.Name}");
+            }
+
         }
     }
 }
