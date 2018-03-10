@@ -17,11 +17,13 @@ namespace LittleSteve.Modules
     {
         private readonly ImgurService _imgurService;
         private readonly BotConfig _config;
+        private readonly HttpClient _client;
 
-        public AslanModule(ImgurService imgurService,BotConfig config)
+        public AslanModule(ImgurService imgurService,BotConfig config, HttpClient client)
         {
             _imgurService = imgurService;
             _config = config;
+            _client = client;
         }
         [Command("aslan",RunMode = RunMode.Async)]
         public async Task Aslan([Remainder] string question = null)
@@ -30,11 +32,10 @@ namespace LittleSteve.Modules
 
             var image = album.ImgurData.Images.Random();
 
-            using (var client = new HttpClient())
-            {
-                var stream = await client.GetStreamAsync(image.Link);
+           
+              var stream = await _client.GetStreamAsync(image.Link);
               await  Context.Channel.SendFileAsync(stream,image.Link.Split('/').Last());
-            }
+            
         }
 }
 }

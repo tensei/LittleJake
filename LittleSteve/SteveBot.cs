@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
@@ -112,8 +113,9 @@ namespace LittleSteve
                 .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
+                .AddSingleton<FerretService>()
                 .AddSingleton<InteractiveService>()
-               
+               .AddSingleton<HttpClient>()
                 .Configure<BotConfig>(_config)
 
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
