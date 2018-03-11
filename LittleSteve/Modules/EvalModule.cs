@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -21,7 +19,8 @@ namespace LittleSteve.Modules
     [Name("Eval")]
     public class EvalModule : ModuleBase<SteveBotCommandContext>
     {
-        private static Assembly[] assemblies = new[] {
+        private static readonly Assembly[] assemblies =
+        {
             typeof(Enumerable).GetTypeInfo().Assembly,
             typeof(ChannelPermissions).GetTypeInfo().Assembly,
             typeof(SocketCommandContext).GetTypeInfo().Assembly,
@@ -29,7 +28,8 @@ namespace LittleSteve.Modules
             typeof(SocketGuildUser).GetTypeInfo().Assembly
         };
 
-        private static string[] namespaces = new[] {
+        private static readonly string[] namespaces =
+        {
             "System", "System.Linq",
             "System.Diagnostics", "System.Collections",
             "System.Threading.Tasks", "Discord",
@@ -37,54 +37,52 @@ namespace LittleSteve.Modules
             "Discord.WebSocket"
         };
 
-        private static ScriptOptions opts = ScriptOptions.Default.AddImports(namespaces).AddReferences(assemblies);
+        private static readonly ScriptOptions opts = ScriptOptions.Default.AddImports(namespaces)
+            .AddReferences(assemblies);
 
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
 
         [Command(RunMode = RunMode.Async)]
         [RequireOwner]
         [Summary("Run a C# code snippet")]
-        public async Task Evaulate([Remainder]string code)
+        public async Task Evaulate([Remainder] string code)
         {
             var sw = Stopwatch.StartNew();
-            bool success = false;
+            var success = false;
             object result;
-            
+
             try
             {
-                result = await CSharpScript.EvaluateAsync(code, options: opts, globals: new Globals(Context, random)).ConfigureAwait(false);
+                result = await CSharpScript.EvaluateAsync(code, opts, new Globals(Context, random))
+                    .ConfigureAwait(false);
                 success = true;
             }
             catch (Exception ex)
             {
                 result = ex.Message;
             }
+
             sw.Stop();
-           
+
             var embed = new EmbedBuilder()
                 .WithTitle("Eval Result")
                 .WithDescription(success ? "Successful" : "Failed")
                 .WithColor(success ? new Color(0, 255, 0) : new Color(255, 0, 0))
-                .WithAuthor(a => a.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl()).WithName(Context.Client.CurrentUser.Username))
+                .WithAuthor(a =>
+                    a.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl())
+                        .WithName(Context.Client.CurrentUser.Username))
                 .WithFooter(a => a.WithText($"{sw.ElapsedMilliseconds}ms"));
 
             //embed.AddField(a => a.WithName("Code").WithValue(Format.Code(code, "cs")));
-            embed.AddField(a => a.WithName($"Result: {result?.GetType()?.Name ?? "null"}").WithValue(Format.Code($"{result ?? " "}", "txt")));
+            embed.AddField(a =>
+                a.WithName($"Result: {result?.GetType()?.Name ?? "null"}")
+                    .WithValue(Format.Code($"{result ?? " "}", "txt")));
 
             await Context.Channel.SendMessageAsync(string.Empty, embed: embed.Build()).ConfigureAwait(false);
         }
 
         public class Globals
         {
-            public DiscordSocketClient Client { get; }
-            public SocketGuild Guild { get; }
-            public ISocketMessageChannel Channel { get; }
-            public SocketUser User { get; }
-            public SocketUserMessage Message { get; }
-            public bool IsPrivate { get; }
-            public Random RNG { get; set; }
-            public SocketGuildUser GuildUser { get; set; }
-
             public Globals(SocketCommandContext context, Random rng)
             {
                 RNG = rng;
@@ -96,7 +94,15 @@ namespace LittleSteve.Modules
                 Message = context.Message;
                 IsPrivate = context.IsPrivate;
             }
-        }
 
+            public DiscordSocketClient Client { get; }
+            public SocketGuild Guild { get; }
+            public ISocketMessageChannel Channel { get; }
+            public SocketUser User { get; }
+            public SocketUserMessage Message { get; }
+            public bool IsPrivate { get; }
+            public Random RNG { get; set; }
+            public SocketGuildUser GuildUser { get; set; }
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace LittleSteve.Data
             {
                 t.HasKey(x => x.Id);
                 t.HasIndex(x => x.LastTweetId);
-               
+
                 t.HasMany(x => x.TwitterAlertSubscriptions).WithOne(x => x.User).HasForeignKey(x => x.TwitterUserId);
             });
 
@@ -41,9 +41,8 @@ namespace LittleSteve.Data
             modelBuilder.Entity<GuildOwner>(g =>
             {
                 g.HasKey(x => new {x.DiscordId, x.GuildId});
-                
+
                 g.HasIndex(x => x.TwitterUserId);
-                
             });
 
             modelBuilder.Entity<TwitchStreamer>(t =>
@@ -51,7 +50,7 @@ namespace LittleSteve.Data
                 t.HasKey(x => x.Id);
                 t.Property(x => x.SteamStartTime).HasDefaultValue(new DateTimeOffset());
                 t.Property(x => x.StreamEndTime).HasDefaultValue(new DateTimeOffset());
-              
+
                 t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer)
                     .HasForeignKey(x => x.TwitchStreamerId);
             });
@@ -66,7 +65,7 @@ namespace LittleSteve.Data
             {
                 t.HasKey(x => x.Id);
                 t.Property(x => x.LatestVideoDate).HasDefaultValue(new DateTimeOffset());
-              
+
                 t.HasMany(x => x.YoutubeAlertSubscriptions).WithOne(x => x.Youtuber).HasForeignKey(x => x.YoutuberId);
             });
 

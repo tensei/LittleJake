@@ -28,7 +28,7 @@ namespace LittleSteve
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                MessageCacheSize = 100,
+                MessageCacheSize = 1000,
                 AlwaysDownloadUsers = true,
 #if DEBUG
                 LogLevel = LogSeverity.Verbose,
@@ -40,8 +40,8 @@ namespace LittleSteve
 
             _config = BuildConfig();
             _services = ConfigureServices();
-             
-            
+
+
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
 
@@ -58,51 +58,51 @@ namespace LittleSteve
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
-                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>())).WithName(user.ScreenName).ToRunNow()
+                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
+                        .WithName(user.ScreenName).ToRunNow()
                         .AndEvery(60).Seconds();
                 }
 
                 foreach (var streamer in context.TwitchStreamers)
                 {
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
-                            _services.GetService<SteveBotContext>(),_services.GetService<DiscordSocketClient>())).WithName(streamer.Name).ToRunNow()
+                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
+                        .WithName(streamer.Name).ToRunNow()
                         .AndEvery(60).Seconds();
                 }
 
                 foreach (var youtuber in context.Youtubers)
                 {
                     registry.Schedule(() =>
-                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
+                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(),
+                                _services.GetService<DiscordSocketClient>()))
                         .WithName(youtuber.Id).ToRunNow().AndEvery(5).Minutes();
                 }
             }
 
 
             JobManager.Initialize(registry);
+            JobManager.JobException += info => Log.Information(info.Exception, "{jobName} has a problem", info.Name);
         }
 
         public async Task StartAsync()
         {
-           
-        
             _client.Log += BotLogHook.Log;
             _client.Ready += async () =>
             {
                 await _client.SetGameAsync("Deathmatch with Wander");
                 SetupJobs();
-
             };
-          
+
             await _client.LoginAsync(TokenType.Bot, _config.Get<BotConfig>().DiscordToken);
 
             await _client.StartAsync();
 
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
-     
+
             await Task.Delay(-1);
         }
 
-      
 
         private IServiceProvider ConfigureServices()
         {
@@ -111,13 +111,12 @@ namespace LittleSteve
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
-           
                 .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
                 .AddSingleton<FerretService>()
                 .AddSingleton<InteractiveService>()
-               .AddSingleton<HttpClient>()
+                .AddSingleton<HttpClient>()
                 .Configure<BotConfig>(_config)
 
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
@@ -128,11 +127,8 @@ namespace LittleSteve
                 .BuildServiceProvider();
         }
 
-        private IConfiguration BuildConfig()
-        {
-            return new ConfigurationBuilder()
-                .AddJsonFile("config.json", false, true)
-                .Build();
-        }
+        private IConfiguration BuildConfig() => new ConfigurationBuilder()
+            .AddJsonFile("config.json", false, true)
+            .Build();
     }
 }

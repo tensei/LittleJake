@@ -21,10 +21,8 @@ namespace LittleSteve.Services
         {
         }
 
-        public async Task<Status> GetLatestTweetForUserAsync(long userId)
-        {
-            return (await _token.Statuses.UserTimelineAsync(userId, 1)).Single();
-        }
+        public async Task<Status> GetLatestTweetForUserAsync(long userId) =>
+            (await _token.Statuses.UserTimelineAsync(userId, 1)).Single();
 
         public async Task<Status> GetTweetByIdAsync(long tweetId)
         {

@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 
 namespace LittleSteve.Data.Migrations
 {
@@ -9,59 +7,59 @@ namespace LittleSteve.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_GuildOwners_TwitchStreamers_TwitchStreamerId",
-                table: "GuildOwners");
+                "FK_GuildOwners_TwitchStreamers_TwitchStreamerId",
+                "GuildOwners");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_GuildOwners_TwitterUsers_TwitterUserId",
-                table: "GuildOwners");
+                "FK_GuildOwners_TwitterUsers_TwitterUserId",
+                "GuildOwners");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_GuildOwners_Youtubers_YoutuberId",
-                table: "GuildOwners");
+                "FK_GuildOwners_Youtubers_YoutuberId",
+                "GuildOwners");
 
             migrationBuilder.DropIndex(
-                name: "IX_GuildOwners_TwitchStreamerId",
-                table: "GuildOwners");
+                "IX_GuildOwners_TwitchStreamerId",
+                "GuildOwners");
 
             migrationBuilder.DropIndex(
-                name: "IX_GuildOwners_YoutuberId",
-                table: "GuildOwners");
+                "IX_GuildOwners_YoutuberId",
+                "GuildOwners");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateIndex(
-                name: "IX_GuildOwners_TwitchStreamerId",
-                table: "GuildOwners",
-                column: "TwitchStreamerId");
+                "IX_GuildOwners_TwitchStreamerId",
+                "GuildOwners",
+                "TwitchStreamerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GuildOwners_YoutuberId",
-                table: "GuildOwners",
-                column: "YoutuberId");
+                "IX_GuildOwners_YoutuberId",
+                "GuildOwners",
+                "YoutuberId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_GuildOwners_TwitchStreamers_TwitchStreamerId",
-                table: "GuildOwners",
-                column: "TwitchStreamerId",
-                principalTable: "TwitchStreamers",
+                "FK_GuildOwners_TwitchStreamers_TwitchStreamerId",
+                "GuildOwners",
+                "TwitchStreamerId",
+                "TwitchStreamers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_GuildOwners_TwitterUsers_TwitterUserId",
-                table: "GuildOwners",
-                column: "TwitterUserId",
-                principalTable: "TwitterUsers",
+                "FK_GuildOwners_TwitterUsers_TwitterUserId",
+                "GuildOwners",
+                "TwitterUserId",
+                "TwitterUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_GuildOwners_Youtubers_YoutuberId",
-                table: "GuildOwners",
-                column: "YoutuberId",
-                principalTable: "Youtubers",
+                "FK_GuildOwners_Youtubers_YoutuberId",
+                "GuildOwners",
+                "YoutuberId",
+                "Youtubers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }

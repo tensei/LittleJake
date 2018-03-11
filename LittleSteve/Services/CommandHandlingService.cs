@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using LittleSteve.Data;
 using LittleSteve.Models;
 using LittleSteve.TypeReaders;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace LittleSteve.Services
@@ -21,16 +18,15 @@ namespace LittleSteve.Services
         private readonly BotConfig _config;
         private IServiceProvider _provider;
 
-        public CommandHandlingService(DiscordSocketClient client, CommandService commands,BotConfig config)
+        public CommandHandlingService(DiscordSocketClient client, CommandService commands, BotConfig config)
         {
             _client = client;
             _commands = commands;
             _config = config;
             _commands.Log += BotLogHook.Log;
             _client.MessageReceived += MessageReceived;
-            
         }
-     
+
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _provider = provider;
@@ -41,7 +37,6 @@ namespace LittleSteve.Services
 
         private async Task MessageReceived(SocketMessage rawMessage)
         {
-            
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             // Ignore system messages and messages from bots
@@ -64,9 +59,9 @@ namespace LittleSteve.Services
             }
 
             var context = new SteveBotCommandContext(_client, message, _provider);
-            
+
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
-            
+
             if (!result.IsSuccess)
             {
                 Log.Error($"{result.Error}: {result.ErrorReason}");

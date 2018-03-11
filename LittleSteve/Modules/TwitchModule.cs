@@ -27,12 +27,13 @@ namespace LittleSteve.Modules
         private readonly TwitchService _twitchService;
 
 
-        public TwitchModule(TwitchService twitchService, SteveBotContext botContext,IServiceProvider provider)
+        public TwitchModule(TwitchService twitchService, SteveBotContext botContext, IServiceProvider provider)
         {
             _twitchService = twitchService;
             _botContext = botContext;
             _provider = provider;
         }
+
         [Command]
         [Summary("View the status of the default Twitch streamer")]
         [Remarks("?twitch")]
@@ -50,15 +51,14 @@ namespace LittleSteve.Modules
                 await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Id == Context.GuildOwner.TwitchStreamerId);
             if (stream is null)
             {
-                
                 var timeAgo = DateTimeOffset.UtcNow - twitch.StreamEndTime;
                 await ReplyAsync(
-                    $"**Stream Offline**\n{twitch.Name} was last seen {timeAgo.Humanize(3, minUnit: TimeUnit.Second,collectionSeparator:" ")} ago");
+                    $"**Stream Offline**\n{twitch.Name} was last seen {timeAgo.Humanize(3, minUnit: TimeUnit.Second, collectionSeparator: " ")} ago");
             }
             else
             {
                 var timeLive = DateTimeOffset.UtcNow - twitch.SteamStartTime;
-                var embed =  new EmbedBuilder()
+                var embed = new EmbedBuilder()
                     .WithAuthor($"{twitch.Name} is live", url: $"https://twitch.tv/{twitch.Name}")
                     .WithTitle($"{stream.Channel.Status}")
                     .WithUrl($"https://twitch.tv/{twitch.Name}")
@@ -68,11 +68,12 @@ namespace LittleSteve.Modules
                     //we add the timeseconds so the image wont be used from the cache 
                     .WithImageUrl(
                         $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
-                    .WithFooter($"Live for {timeLive.Humanize(2,maxUnit:TimeUnit.Hour,minUnit:TimeUnit.Second)}")
+                    .WithFooter($"Live for {timeLive.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Second)}")
                     .Build();
                 await ReplyAsync(string.Empty, embed: embed);
             }
         }
+
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add twitch channel to follow in a specified channel")]
@@ -136,7 +137,7 @@ namespace LittleSteve.Modules
         public async Task RemoveTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
-                .FirstOrDefaultAsync(x => x.Name.Equals(twitchName,StringComparison.CurrentCultureIgnoreCase));
+                .FirstOrDefaultAsync(x => x.Name.Equals(twitchName, StringComparison.CurrentCultureIgnoreCase));
 
             if (user is null)
             {
@@ -150,15 +151,16 @@ namespace LittleSteve.Modules
                 await ReplyAsync($"This channel doesnt contain an alert for {user.Name}");
                 return;
             }
+
             user.TwitchAlertSubscriptions.Remove(alert);
             if (Context.GuildOwner.TwitchStreamerId == user.Id)
             {
-                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId,
+                    Context.GuildOwner.GuildId);
                 owner.TwitchStreamerId = 0;
             }
-            
-            
-        
+
+
             var changes = _botContext.SaveChanges();
 
             if (changes > 0)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using LittleSteve.Models;
 using Newtonsoft.Json;
@@ -12,11 +8,6 @@ namespace LittleSteve.Services
     public class FerretService
     {
         private readonly HttpClient _httpClient = new HttpClient();
-
-        public FerretService()
-        {
-            
-        }
 
         public async Task<FerretPicture> GetFerretPicture()
         {

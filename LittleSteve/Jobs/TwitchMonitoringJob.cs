@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
 using FluentScheduler;
 using Humanizer;
@@ -69,8 +68,8 @@ namespace LittleSteve.Jobs
                     streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var messageId = CreateTwitchMessage(streamer,stream,subscription).AsSync(false);
-                        subscription.MessageId =  messageId;
+                        var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
+                        subscription.MessageId = messageId;
                     }
 
                     _botContext.SaveChanges();
@@ -85,7 +84,7 @@ namespace LittleSteve.Jobs
                     {
                         return;
                     }
-                    
+
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
                         if (subscription.MessageId == 0)
@@ -93,6 +92,7 @@ namespace LittleSteve.Jobs
                             var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
                             subscription.MessageId = messageId;
                         }
+
                         var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
                         var message =
                             channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
@@ -118,7 +118,8 @@ namespace LittleSteve.Jobs
                     description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
                     description.AppendLine($"**Ended at:** {streamer.StreamEndTime:g} UTC");
                     description.AppendLine(string.Empty);
-                    description.AppendLine($"**Total Time:** {streamer.StreamLength.Humanize(2,maxUnit:TimeUnit.Hour,minUnit:TimeUnit.Minute,collectionSeparator: " ")}");
+                    description.AppendLine(
+                        $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
 
 
                     var embed = new EmbedBuilder()
@@ -129,9 +130,9 @@ namespace LittleSteve.Jobs
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
                         var message =
-                            channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
+                            channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
                         if (message is null)
                         {
                             Log.Information("Message was not found");
@@ -148,9 +149,10 @@ namespace LittleSteve.Jobs
             }
         }
 
-        private async  Task<long> CreateTwitchMessage(TwitchStreamer streamer, Stream stream, TwitchAlertSubscription subscription )
+        private async Task<long> CreateTwitchMessage(TwitchStreamer streamer, Stream stream,
+            TwitchAlertSubscription subscription)
         {
-            var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+            var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
             var message = await channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream));
             return (long) message.Id;
         }

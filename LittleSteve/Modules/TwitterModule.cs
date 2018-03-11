@@ -26,13 +26,15 @@ namespace LittleSteve.Modules
         private readonly IServiceProvider _provider;
         private readonly TwitterService _twitterService;
 
-        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config,IServiceProvider provider)
+        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config,
+            IServiceProvider provider)
         {
             _twitterService = twitterService;
             _botContext = botContext;
             _config = config;
             _provider = provider;
         }
+
         [Command]
         [Summary("Get the latest status from the default twitter")]
         [Remarks("?twitter")]
@@ -42,6 +44,7 @@ namespace LittleSteve.Modules
             {
                 return;
             }
+
             var tweet = await _twitterService.GetLatestTweetForUserAsync(Context.GuildOwner.TwitterUserId);
 
             await ReplyAsync($@"https://twitter.com/{tweet.User.ScreenName}/status/{tweet.Id}");
@@ -110,24 +113,29 @@ namespace LittleSteve.Modules
         [Remarks("?twitter remove destiny #destinyhub")]
         public async Task RemoveTwitter(string twitterName, IGuildChannel guildChannel)
         {
-            var twitter = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(x =>
-                x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
+            var twitter = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(
+                x =>
+                    x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
 
             if (twitter is null)
             {
                 await ReplyAsync("Twitter Not Found");
                 return;
             }
-            var alert = twitter.TwitterAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long)guildChannel.Id);
+
+            var alert = twitter.TwitterAlertSubscriptions.FirstOrDefault(x =>
+                x.DiscordChannelId == (long) guildChannel.Id);
             if (alert is null)
             {
                 await ReplyAsync($"This channel doesnt contain an alert for {twitter.ScreenName}");
                 return;
             }
+
             twitter.TwitterAlertSubscriptions.Remove(alert);
             if (Context.GuildOwner.TwitterUserId == twitter.Id)
             {
-                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId,
+                    Context.GuildOwner.GuildId);
                 owner.TwitterUserId = 0;
             }
 
@@ -141,8 +149,8 @@ namespace LittleSteve.Modules
             {
                 await ReplyAsync($"Unable to remove Alert for {twitter.ScreenName}");
             }
-
         }
+
         protected override void AfterExecute(CommandInfo command)
         {
             _botContext.Dispose();

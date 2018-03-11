@@ -7,7 +7,5 @@
         public long TwitterUserId { get; set; }
         public long TwitchStreamerId { get; set; }
         public string YoutuberId { get; set; }
-        
-       
     }
 }

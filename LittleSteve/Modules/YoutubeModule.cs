@@ -11,7 +11,6 @@ using LittleSteve.Jobs;
 using LittleSteve.Preconditions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleSteve.Modules
@@ -19,7 +18,6 @@ namespace LittleSteve.Modules
     [Group("youtube")]
     [Name("Youtube")]
     [RequireContext(ContextType.Guild)]
-
     public class YoutubeModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;
@@ -30,6 +28,7 @@ namespace LittleSteve.Modules
             _botContext = botContext;
             _provider = provider;
         }
+
         [Command]
         [Summary("View lastest Video for the default Youtube Channel")]
         [Remarks("?youtube")]
@@ -44,13 +43,13 @@ namespace LittleSteve.Modules
             var video = await YoutubeFeedReader.GetLastestVideoFromFeed(Context.GuildOwner.YoutuberId);
             await ReplyAsync(video.Url);
         }
+
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add youtube channel to follow in a specified channel")]
         [Remarks("?youtube add destiny #destinyhub")]
         public async Task AddYoutube(string youtubeId, IGuildChannel guildChannel)
         {
-          
             var video = await YoutubeFeedReader.GetLastestVideoFromFeed(youtubeId);
             if (video is null)
             {
@@ -105,8 +104,9 @@ namespace LittleSteve.Modules
         [Remarks("?youtube remove destiny #destinyhub")]
         public async Task RemoveYoutube(string youtubeName, IGuildChannel guildChannel)
         {
-            var youtuber = await _botContext.Youtubers.Include(x=> x.YoutubeAlertSubscriptions).FirstOrDefaultAsync(x =>
-                x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
+            var youtuber = await _botContext.Youtubers.Include(x => x.YoutubeAlertSubscriptions).FirstOrDefaultAsync(
+                x =>
+                    x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
 
             if (youtuber is null)
             {
@@ -121,10 +121,12 @@ namespace LittleSteve.Modules
                 await ReplyAsync($"This channel doesnt contain an alert for {youtuber.Name}");
                 return;
             }
+
             youtuber.YoutubeAlertSubscriptions.Remove(alert);
             if (Context.GuildOwner.YoutuberId == youtuber.Id)
             {
-                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId, Context.GuildOwner.GuildId);
+                var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId,
+                    Context.GuildOwner.GuildId);
                 owner.TwitchStreamerId = 0;
             }
 
@@ -138,8 +140,8 @@ namespace LittleSteve.Modules
             {
                 await ReplyAsync($"Unable to remove Alert for {youtuber.Name}");
             }
-
         }
+
         protected override void AfterExecute(CommandInfo command)
         {
             _botContext.Dispose();

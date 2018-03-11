@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Discord.Commands;
 using Discord.WebSocket;
 using LittleSteve.Data;
@@ -13,13 +12,10 @@ namespace LittleSteve
         public SteveBotCommandContext(DiscordSocketClient client, SocketUserMessage msg, IServiceProvider provider) :
             base(client, msg)
         {
-         //   Provider = provider;
-            
-            GuildOwner = provider.GetService<SteveBotContext>().Find<GuildOwner>((long)base.Guild.OwnerId,(long) base.Guild.Id);
-
+            GuildOwner = provider.GetService<SteveBotContext>().Find<GuildOwner>((long) Guild.OwnerId, (long) Guild.Id);
         }
 
-       // public IServiceProvider Provider { get; }
+
         public GuildOwner GuildOwner { get; }
     }
 }

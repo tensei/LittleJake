@@ -22,19 +22,12 @@ namespace LittleSteve.Services
             return users.Matches.FirstOrDefault();
         }
 
-        public Task<User> GetUserByIdAsync(long channelId)
-        {
-            return _api.Users.v5.GetUserByIDAsync(channelId.ToString());
-        }
+        public Task<User> GetUserByIdAsync(long channelId) => _api.Users.v5.GetUserByIDAsync(channelId.ToString());
 
-        public Task<bool> IsUserStreamingAsync(long channelId)
-        {
-            return _api.Streams.v5.BroadcasterOnlineAsync(channelId.ToString());
-        }
+        public Task<bool> IsUserStreamingAsync(long channelId) =>
+            _api.Streams.v5.BroadcasterOnlineAsync(channelId.ToString());
 
-        public async Task<Stream> GetStreamAsync(long channelId)
-        {
-            return (await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString())).Stream;
-        }
+        public async Task<Stream> GetStreamAsync(long channelId) =>
+            (await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString())).Stream;
     }
 }

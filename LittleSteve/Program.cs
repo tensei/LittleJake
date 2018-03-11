@@ -20,11 +20,8 @@ namespace LittleSteve
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Log.Information(e, "Bot is donezo");
             }
-           
-           
         }
     }
 }

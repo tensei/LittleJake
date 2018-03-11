@@ -14,6 +14,5 @@ namespace LittleSteve.Data.Entities
         [NotMapped] public TimeSpan StreamLength => StreamEndTime - SteamStartTime;
 
         public ICollection<TwitchAlertSubscription> TwitchAlertSubscriptions { get; set; }
-        
     }
 }

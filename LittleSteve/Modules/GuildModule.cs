@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord.Addons.Interactive;
 using Discord.Commands;
-using Discord.WebSocket;
 using LittleSteve.Data;
 using LittleSteve.Data.Entities;
 using LittleSteve.Preconditions;
@@ -24,22 +20,23 @@ namespace LittleSteve.Modules
         {
             _botContext = botContext;
         }
+
         [RequireOwnerOrAdmin]
         [Command("setup", RunMode = RunMode.Async)]
         [Summary("Setup guild with default social media accounts.")]
         [Remarks("Just follow the prompts people")]
         public async Task Setup()
         {
-
             await ReplyAsync($"Setting up Guild for {Context.Guild.Owner.Username}");
-            var owner = new GuildOwner()
+            var owner = new GuildOwner
             {
                 DiscordId = (long) Context.Guild.OwnerId,
-                GuildId = (long) Context.Guild.Id,
+                GuildId = (long) Context.Guild.Id
             };
-            await ReplyAsync("Would you like to setup Social Media Notifications? If you do please add the accounts you want to follow before continuing.\n\n**Type Yes to continue or Literally anything else to skip this**");
-            var message = await NextMessageAsync(timeout:TimeSpan.FromSeconds(20));
-            if (!message.Content.Equals("yes",StringComparison.CurrentCultureIgnoreCase))
+            await ReplyAsync(
+                "Would you like to setup Social Media Notifications? If you do please add the accounts you want to follow before continuing.\n\n**Type Yes to continue or Literally anything else to skip this**");
+            var message = await NextMessageAsync(timeout: TimeSpan.FromSeconds(20));
+            if (!message.Content.Equals("yes", StringComparison.CurrentCultureIgnoreCase))
             {
                 return;
             }
@@ -49,7 +46,8 @@ namespace LittleSteve.Modules
 
             if (!(message is null))
             {
-                var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x => x.ScreenName.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
+                var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x =>
+                    x.ScreenName.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
                 if (twitter is null)
                 {
                     await ReplyAsync("Please setup that user with !twitter add");
@@ -59,12 +57,13 @@ namespace LittleSteve.Modules
                     owner.TwitterUserId = twitter.Id;
                 }
             }
-           
+
             await ReplyAsync("Enter the name for the default Youtube account to follow");
             message = await NextMessageAsync();
             if (!(message is null))
             {
-                var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x => x.Name.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
+                var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x =>
+                    x.Name.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
                 if (youtube is null)
                 {
                     await ReplyAsync("Please setup that user with !youtube add");
@@ -74,12 +73,13 @@ namespace LittleSteve.Modules
                     owner.YoutuberId = youtube.Id;
                 }
             }
-           
+
             await ReplyAsync("Enter the name for the default Twitch account to follow");
             message = await NextMessageAsync();
             if (!(message is null))
             {
-                var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Name.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
+                var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x =>
+                    x.Name.Equals(message.Content, StringComparison.CurrentCultureIgnoreCase));
                 if (twitch is null)
                 {
                     await ReplyAsync("Please setup that user with !twitch add");
@@ -89,38 +89,34 @@ namespace LittleSteve.Modules
                     owner.TwitchStreamerId = twitch.Id;
                 }
             }
-          
+
 
             _botContext.GuildOwners.Add(owner);
 
-                var changes = await _botContext.SaveChangesAsync();
+            var changes = await _botContext.SaveChangesAsync();
 
-                if (changes > 0)
-                {
-                    await ReplyAsync("Guild Setup Successfully");
-                    await ReplyAsync("Run `!guild twitter`, `!guild youtube`, `!guild twitch` to set default accounts if you need to");
-                    return;
+            if (changes > 0)
+            {
+                await ReplyAsync("Guild Setup Successfully");
+                await ReplyAsync(
+                    "Run `!guild twitter`, `!guild youtube`, `!guild twitch` to set default accounts if you need to");
+                return;
+            }
 
-                }
-
-                await ReplyAsync("Unable to save changes try again or get Thing");
-         
-           
-            
-     
+            await ReplyAsync("Unable to save changes try again or get Thing");
         }
-     
+
         [RequireOwnerOrAdmin]
         [Command("twitter", RunMode = RunMode.Async)]
         [Summary("Set the default twitter for guild")]
         [Remarks("?guild twitter omnidestiny")]
         public async Task DefaultTwitter(string twitterName)
         {
-            var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x => x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
+            var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x =>
+                x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
             if (twitter is null)
             {
                 await ReplyAsync("Please setup that user with !twitter add");
-                
             }
             else
             {
@@ -135,25 +131,25 @@ namespace LittleSteve.Modules
 
                 owner.TwitterUserId = twitter.Id;
                 await SaveOwner();
-
             }
         }
+
         [RequireOwnerOrAdmin]
         [Command("youtube", RunMode = RunMode.Async)]
         [Summary("Set default Youtube channel for guild")]
         [Remarks("?guild youtube destiny")]
         public async Task DefaultYoutube(string youtubeName)
         {
-            var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x => x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
+            var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x =>
+                x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
             if (youtube is null)
             {
                 await ReplyAsync("Please setup that user with !youtube add");
-
             }
             else
             {
-                var owner = await _botContext.GuildOwners.FindAsync((long)Context.Guild.OwnerId,
-                    (long)Context.Guild.Id);
+                var owner = await _botContext.GuildOwners.FindAsync((long) Context.Guild.OwnerId,
+                    (long) Context.Guild.Id);
 
                 if (owner is null)
                 {
@@ -165,22 +161,23 @@ namespace LittleSteve.Modules
                 await SaveOwner();
             }
         }
+
         [RequireOwnerOrAdmin]
         [Command("twitch", RunMode = RunMode.Async)]
         [Summary("Set default twitch streamer for guild")]
         [Remarks("?guild twitch destiny")]
         public async Task DefaultTwitch(string twitchName)
         {
-            var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Name.Equals(twitchName, StringComparison.CurrentCultureIgnoreCase));
+            var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x =>
+                x.Name.Equals(twitchName, StringComparison.CurrentCultureIgnoreCase));
             if (twitch is null)
             {
                 await ReplyAsync("Please setup that user with !twtich add");
-
             }
             else
             {
-                var owner = await _botContext.GuildOwners.FindAsync((long)Context.Guild.OwnerId,
-                    (long)Context.Guild.Id);
+                var owner = await _botContext.GuildOwners.FindAsync((long) Context.Guild.OwnerId,
+                    (long) Context.Guild.Id);
 
                 if (owner is null)
                 {

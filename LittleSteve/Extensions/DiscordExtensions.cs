@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Humanizer;
@@ -14,12 +12,16 @@ namespace LittleSteve.Extensions
     //https://github.com/AntiTcb/DiscordBots/blob/vs17-convert/src/DiscordBCL/Extensions/DiscordExtensions.cs
     public static class DiscordExtensions
     {
-        public static bool CanExecute(this CommandInfo cmd, ICommandContext ctx, IServiceProvider provider)
-            => cmd.CheckPreconditionsAsync(ctx, provider).GetAwaiter().GetResult().IsSuccess;
-        public static bool CanExecute(this ModuleInfo module, ICommandContext ctx, IServiceProvider provider)
-            => module.Commands.Any(c => c.CanExecute(ctx, provider));
+        public static bool CanExecute(this CommandInfo cmd, ICommandContext ctx, IServiceProvider provider) =>
+            cmd.CheckPreconditionsAsync(ctx, provider).GetAwaiter().GetResult().IsSuccess;
 
-        public static Embed GetEmbed(this IEnumerable<ModuleInfo> mods, SocketCommandContext ctx, IServiceProvider provider)
+        public static bool CanExecute(this ModuleInfo module, ICommandContext ctx, IServiceProvider provider)
+        {
+            return module.Commands.Any(c => c.CanExecute(ctx, provider));
+        }
+
+        public static Embed GetEmbed(this IEnumerable<ModuleInfo> mods, SocketCommandContext ctx,
+            IServiceProvider provider)
         {
             var availModules = mods.Where(m => m.CanExecute(ctx, provider));
 
@@ -36,11 +38,13 @@ namespace LittleSteve.Extensions
                     Name = ctx.Guild.CurrentUser.Nickname ?? ctx.Guild.CurrentUser.Username,
                     IconUrl = ctx.Client.CurrentUser.GetAvatarUrl() ?? ""
                 },
-                Color = new Color(0x81DAF5),
+                Color = new Color(0x81DAF5)
             };
 
             foreach (var m in availModules)
+            {
                 eb.AddField(m.Name, m.GetHelpString(ctx, provider));
+            }
 
             return eb.Build();
         }
@@ -56,13 +60,15 @@ namespace LittleSteve.Extensions
                     Name = ctx.Guild.CurrentUser.Nickname ?? ctx.Guild.CurrentUser.Username,
                     IconUrl = ctx.Client.CurrentUser.GetAvatarUrl() ?? ""
                 },
-                Color = new Color(0x81DAF5),
+                Color = new Color(0x81DAF5)
             };
 
             var availableCommands = mod.Commands.Distinct(new CommandNameComparer())
                 .Where(c => c.CanExecute(ctx, provider));
             foreach (var c in availableCommands)
+            {
                 eb.AddField(c.Aliases.Humanize(), $"__{c.Summary}__ - *{c.Remarks}*");
+            }
 
             return eb.Build();
         }
@@ -78,14 +84,16 @@ namespace LittleSteve.Extensions
 
         public static Embed GetEmbed(this CommandInfo cmd, SocketCommandContext ctx)
         {
-            string aliases = cmd.Aliases.Any(a => a != cmd.Name) ? $"**Aliases:** {string.Join(", ", cmd.Aliases.Where(a => a != cmd.Name))}\n\n" : "";
+            var aliases = cmd.Aliases.Any(a => a != cmd.Name)
+                ? $"**Aliases:** {string.Join(", ", cmd.Aliases.Where(a => a != cmd.Name))}\n\n"
+                : "";
             var name = cmd.Aliases.First().Split().Last()
                 .Equals(cmd.Name, StringComparison.CurrentCultureIgnoreCase)
                 ? cmd.Aliases.FirstOrDefault()
                 : cmd.Name;
-            string parameters = string.Join(" ", cmd.Parameters.Select(p => $"{p.Name}"));
-            string signature = $"\n\n\tSyntax: `?{name} {parameters}`";
-            string example = $"\n\tExample: `{cmd.Remarks ?? "No Remarks"}`";
+            var parameters = string.Join(" ", cmd.Parameters.Select(p => $"{p.Name}"));
+            var signature = $"\n\n\tSyntax: `?{name} {parameters}`";
+            var example = $"\n\tExample: `{cmd.Remarks ?? "No Remarks"}`";
 
             var eb = new EmbedBuilder
             {
@@ -106,17 +114,22 @@ namespace LittleSteve.Extensions
 
             return eb.Build();
         }
+
         public static IEnumerable<EmbedFieldBuilder> GetParameterFields(this CommandInfo cmd)
         {
-            string fieldValue = "\u200B";
+            var fieldValue = "\u200B";
             foreach (var p in cmd.Parameters)
             {
-                string pName = p.Name.Humanize();
+                var pName = p.Name.Humanize();
 
                 if (p.IsOptional)
+                {
                     fieldValue = $"[{pName}* = {p.DefaultValue}{(p.IsRemainder ? "...]" : "]")} - {p.Summary}";
+                }
                 else
+                {
                     fieldValue = $"<{pName} {(p.IsRemainder ? "...>" : ">")} {p.Summary}";
+                }
 
                 var field = new EmbedFieldBuilder
                 {
@@ -126,7 +139,9 @@ namespace LittleSteve.Extensions
                 yield return field;
 
                 if (!p.Type.GetTypeInfo().IsEnum)
+                {
                     continue;
+                }
 
                 var enumValues = Enum.GetNames(p.Type).Cast<string>().OrderBy(x => x);
                 var enumField = new EmbedFieldBuilder

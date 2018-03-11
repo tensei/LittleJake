@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using LittleSteve.Models;
 using Newtonsoft.Json;
@@ -14,10 +9,11 @@ namespace LittleSteve.Services
     {
         private readonly string _clientId;
         private readonly HttpClient _httpClient = new HttpClient();
+
         public ImgurService(string clientId)
         {
             _clientId = clientId;
-            
+
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Client-ID {_clientId}");
         }
 

@@ -43,15 +43,11 @@ namespace LittleSteve.Modules
 
             await ReplyAsync("", embed: embed.Build());
         }
+
         [Command("test")]
         [RequireOwnerOrAdmin]
         public async Task Test()
         {
-
         }
-
-
-
-
     }
 }
