@@ -26,7 +26,8 @@ namespace LittleSteve.Modules
         }
         [RequireOwnerOrAdmin]
         [Command("setup", RunMode = RunMode.Async)]
-        [Summary("Setup guild with default social media accounts")]
+        [Summary("Setup guild with default social media accounts.")]
+        [Remarks("Just follow the prompts people")]
         public async Task Setup()
         {
 
@@ -112,6 +113,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("twitter", RunMode = RunMode.Async)]
         [Summary("Set the default twitter for guild")]
+        [Remarks("?guild twitter omnidestiny")]
         public async Task DefaultTwitter(string twitterName)
         {
             var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x => x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
@@ -139,6 +141,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("youtube", RunMode = RunMode.Async)]
         [Summary("Set default Youtube channel for guild")]
+        [Remarks("?guild youtube destiny")]
         public async Task DefaultYoutube(string youtubeName)
         {
             var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x => x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
@@ -165,6 +168,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("twitch", RunMode = RunMode.Async)]
         [Summary("Set default twitch streamer for guild")]
+        [Remarks("?guild twitch destiny")]
         public async Task DefaultTwitch(string twitchName)
         {
             var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Name.Equals(twitchName, StringComparison.CurrentCultureIgnoreCase));

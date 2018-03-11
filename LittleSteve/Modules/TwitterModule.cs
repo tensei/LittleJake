@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace LittleSteve.Modules
 {
     [Group("twitter")]
+    [Name("Twitter")]
     [RequireContext(ContextType.Guild)]
     public class TwitterModule : ModuleBase<SteveBotCommandContext>
     {
@@ -33,6 +34,8 @@ namespace LittleSteve.Modules
             _provider = provider;
         }
         [Command]
+        [Summary("Get the latest status from the default twitter")]
+        [Remarks("?twitter")]
         public async Task Twitter()
         {
             if (Context.GuildOwner is null || Context.GuildOwner.TwitterUserId == 0)
@@ -46,6 +49,8 @@ namespace LittleSteve.Modules
 
         [Command("add")]
         [RequireOwnerOrAdmin]
+        [Summary("Add twitter account to follow in a specified channel")]
+        [Remarks("?twitter add destiny #destinyhub")]
         public async Task AddTwitter(string twitterName, IGuildChannel guildChannel)
         {
             var userResponse = await _twitterService.GetUserFromHandle(twitterName);
@@ -101,6 +106,8 @@ namespace LittleSteve.Modules
 
         [Command("remove")]
         [RequireOwnerOrAdmin]
+        [Summary("Remove twitter account follow in a specified channel")]
+        [Remarks("?twitter remove destiny #destinyhub")]
         public async Task RemoveTwitter(string twitterName, IGuildChannel guildChannel)
         {
             var twitter = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(x =>

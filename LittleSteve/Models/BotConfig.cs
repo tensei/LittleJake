@@ -20,5 +20,6 @@ namespace LittleSteve.Models
         [JsonProperty("ImgurAlbumId")] public string ImgurAlbumId { get; set; }
 
         public string Prefix { get; set; }
+        public int ThrottleLength { get; set; }
     }
 }

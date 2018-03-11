@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
+using LittleSteve.Models;
+using LittleSteve.Preconditions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +25,8 @@ namespace LittleSteve.Modules
         }
         [Command("ferret",RunMode = RunMode.Async)]
         [Summary("Get a picture of a ferret")]
+        [ThrottleCommand]
+        [Remarks("?ferret what should i do today")]
         public async Task Ferret([Remainder] string question = null)
         {
             var picture = await _ferretService.GetFerretPicture();

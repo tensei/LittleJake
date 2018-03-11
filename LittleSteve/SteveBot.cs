@@ -98,6 +98,7 @@ namespace LittleSteve
             await _client.StartAsync();
 
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
+     
             await Task.Delay(-1);
         }
 
@@ -110,6 +111,7 @@ namespace LittleSteve
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+           
                 .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))

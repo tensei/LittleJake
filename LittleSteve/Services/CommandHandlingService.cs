@@ -21,16 +21,16 @@ namespace LittleSteve.Services
         private readonly BotConfig _config;
         private IServiceProvider _provider;
 
-        public CommandHandlingService(DiscordSocketClient client, CommandService commands, BotConfig config)
+        public CommandHandlingService(DiscordSocketClient client, CommandService commands,BotConfig config)
         {
             _client = client;
             _commands = commands;
             _config = config;
             _commands.Log += BotLogHook.Log;
             _client.MessageReceived += MessageReceived;
+            
         }
-
-
+     
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _provider = provider;

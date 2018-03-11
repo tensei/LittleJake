@@ -7,6 +7,7 @@ using Discord;
 using Discord.Commands;
 using LittleSteve;
 using LittleSteve.Extensions;
+using LittleSteve.Preconditions;
 
 namespace LittleSteve.Modules
 {
@@ -25,8 +26,9 @@ namespace LittleSteve.Modules
 
         [Command("help", RunMode = RunMode.Async)]
         [Alias("commands")]
-        [Remarks("help")]
+        [Remarks("?help")]
         [Summary("List available commands")]
+        [ThrottleCommand]
         public async Task HelpAsync()
         {
             var modules = CommandService.Modules
@@ -39,9 +41,9 @@ namespace LittleSteve.Modules
         }
 
         [Command("help", RunMode = RunMode.Async), Priority(1)]
-        [Alias("help:command")]
+        [Alias("help:command","help:c")]
         [Summary("Information about a specific command.")]
-        [Remarks("help prefix")]
+        [Remarks("?help:c aslan")]
         public async Task HelpAsync([Remainder]CommandInfo commandName)
         {
             if (!commandName.CanExecute(Context, _provider))
@@ -51,9 +53,9 @@ namespace LittleSteve.Modules
         }
 
         [Command("help", RunMode = RunMode.Async), Priority(2)]
-        [Alias("help:module")]
+        [Alias("help:module","help:m")]
         [Summary("Information about a specific module.")]
-        [Remarks("help config")]
+        [Remarks("?help:m aslan")]
         public async Task HelpAsync([Remainder]ModuleInfo moduleName)
         {
             if (!moduleName.CanExecute(Context, _provider))

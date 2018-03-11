@@ -35,6 +35,8 @@ namespace LittleSteve.Modules
         }
         [Command]
         [Summary("View the status of the default Twitch streamer")]
+        [Remarks("?twitch")]
+        [ThrottleCommand]
         public async Task Twitch()
         {
             if (Context.GuildOwner is null || Context.GuildOwner.TwitchStreamerId == 0)
@@ -74,6 +76,7 @@ namespace LittleSteve.Modules
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add twitch channel to follow in a specified channel")]
+        [Remarks("?twitch add destiny #destinyhub")]
         public async Task AddTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
@@ -129,6 +132,7 @@ namespace LittleSteve.Modules
         [Command("remove")]
         [RequireOwnerOrAdmin]
         [Summary("Removed followed Twitch channel from channel")]
+        [Remarks("?twitch remove destiny #destinyhub")]
         public async Task RemoveTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)

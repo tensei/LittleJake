@@ -32,6 +32,8 @@ namespace LittleSteve.Modules
         }
         [Command]
         [Summary("View lastest Video for the default Youtube Channel")]
+        [Remarks("?youtube")]
+        [ThrottleCommand]
         public async Task Youtube()
         {
             if (string.IsNullOrWhiteSpace(Context.GuildOwner?.YoutuberId))
@@ -45,6 +47,7 @@ namespace LittleSteve.Modules
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add youtube channel to follow in a specified channel")]
+        [Remarks("?youtube add destiny #destinyhub")]
         public async Task AddYoutube(string youtubeId, IGuildChannel guildChannel)
         {
           
@@ -99,6 +102,7 @@ namespace LittleSteve.Modules
         [Command("remove")]
         [RequireOwnerOrAdmin]
         [Summary("Removed followed Youtube channel from channel")]
+        [Remarks("?youtube remove destiny #destinyhub")]
         public async Task RemoveYoutube(string youtubeName, IGuildChannel guildChannel)
         {
             var youtuber = await _botContext.Youtubers.Include(x=> x.YoutubeAlertSubscriptions).FirstOrDefaultAsync(x =>
