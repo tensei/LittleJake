@@ -8,23 +8,30 @@ using FluentScheduler;
 using LittleSteve.Data;
 using LittleSteve.Data.Entities;
 using LittleSteve.Jobs;
+using LittleSteve.Preconditions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleSteve.Modules
 {
     [Group("youtube")]
+    [Name("Youtube")]
     [RequireContext(ContextType.Guild)]
+
     public class YoutubeModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;
+        private readonly IServiceProvider _provider;
 
-        public YoutubeModule(SteveBotContext botContext)
+        public YoutubeModule(SteveBotContext botContext, IServiceProvider provider)
         {
             _botContext = botContext;
+            _provider = provider;
         }
         [Command]
+        [Summary("View lastest Video for the default Youtube Channel")]
         public async Task Youtube()
         {
             if (string.IsNullOrWhiteSpace(Context.GuildOwner?.YoutuberId))
@@ -36,7 +43,9 @@ namespace LittleSteve.Modules
             await ReplyAsync(video.Url);
         }
         [Command("add")]
-        public async Task AddTwitch(string youtubeId, IGuildChannel guildChannel)
+        [RequireOwnerOrAdmin]
+        [Summary("Add youtube channel to follow in a specified channel")]
+        public async Task AddYoutube(string youtubeId, IGuildChannel guildChannel)
         {
           
             var video = await YoutubeFeedReader.GetLastestVideoFromFeed(youtubeId);
@@ -60,7 +69,7 @@ namespace LittleSteve.Modules
                 };
                 _botContext.Youtubers.Add(youtuber);
                 JobManager.AddJob(
-                    () => new YoutubeMonitoringJob(youtuber.Id, Context.Provider.GetService<SteveBotContext>(),
+                    () => new YoutubeMonitoringJob(youtuber.Id, _provider.GetService<SteveBotContext>(),
                         Context.Client).Execute(), s => s.WithName(youtubeId).ToRunEvery(60).Seconds());
             }
 
@@ -88,6 +97,8 @@ namespace LittleSteve.Modules
         }
 
         [Command("remove")]
+        [RequireOwnerOrAdmin]
+        [Summary("Removed followed Youtube channel from channel")]
         public async Task RemoveYoutube(string youtubeName, IGuildChannel guildChannel)
         {
             var youtuber = await _botContext.Youtubers.Include(x=> x.YoutubeAlertSubscriptions).FirstOrDefaultAsync(x =>
@@ -124,6 +135,10 @@ namespace LittleSteve.Modules
                 await ReplyAsync($"Unable to remove Alert for {youtuber.Name}");
             }
 
+        }
+        protected override void AfterExecute(CommandInfo command)
+        {
+            _botContext.Dispose();
         }
     }
 }

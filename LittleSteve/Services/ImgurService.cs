@@ -13,11 +13,11 @@ namespace LittleSteve.Services
     public class ImgurService
     {
         private readonly string _clientId;
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient = new HttpClient();
         public ImgurService(string clientId)
         {
             _clientId = clientId;
-            _httpClient = new HttpClient();
+            
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Client-ID {_clientId}");
         }
 

@@ -22,13 +22,15 @@ namespace LittleSteve.Modules
     {
         private readonly SteveBotContext _botContext;
         private readonly BotConfig _config;
+        private readonly IServiceProvider _provider;
         private readonly TwitterService _twitterService;
 
-        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config)
+        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config,IServiceProvider provider)
         {
             _twitterService = twitterService;
             _botContext = botContext;
             _config = config;
+            _provider = provider;
         }
         [Command]
         public async Task Twitter()
@@ -69,7 +71,7 @@ namespace LittleSteve.Modules
                 _botContext.TwitterUsers.Add(user);
                 JobManager.AddJob(
                     () => new TwitterMonitoringJob(user.Id, _twitterService,
-                        Context.Provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                        _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
                     s => s.WithName(userResponse.ScreenName).ToRunEvery(30).Seconds());
             }
 

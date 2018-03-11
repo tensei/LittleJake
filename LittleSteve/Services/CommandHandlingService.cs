@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using LittleSteve.Data;
 using LittleSteve.Models;
+using LittleSteve.TypeReaders;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace LittleSteve.Services
@@ -30,6 +34,8 @@ namespace LittleSteve.Services
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _provider = provider;
+            _commands.AddTypeReader<ModuleInfo>(new ModuleInfoTypeReader());
+            _commands.AddTypeReader<CommandInfo>(new CommandInfoTypeReader());
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
@@ -60,7 +66,7 @@ namespace LittleSteve.Services
             var context = new SteveBotCommandContext(_client, message, _provider);
             
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
-
+            
             if (!result.IsSuccess)
             {
                 Log.Error($"{result.Error}: {result.ErrorReason}");

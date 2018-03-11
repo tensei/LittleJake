@@ -9,6 +9,7 @@ using Humanizer;
 using LittleSteve.Data;
 using LittleSteve.Data.Entities;
 using LittleSteve.Jobs;
+using LittleSteve.Preconditions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,19 +18,23 @@ using TimeUnit = Humanizer.Localisation.TimeUnit;
 namespace LittleSteve.Modules
 {
     [Group("twitch")]
+    [Name("Twitch")]
     [RequireContext(ContextType.Guild)]
     public class TwitchModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;
+        private readonly IServiceProvider _provider;
         private readonly TwitchService _twitchService;
 
 
-        public TwitchModule(TwitchService twitchService, SteveBotContext botContext)
+        public TwitchModule(TwitchService twitchService, SteveBotContext botContext,IServiceProvider provider)
         {
             _twitchService = twitchService;
             _botContext = botContext;
+            _provider = provider;
         }
         [Command]
+        [Summary("View the status of the default Twitch streamer")]
         public async Task Twitch()
         {
             if (Context.GuildOwner is null || Context.GuildOwner.TwitchStreamerId == 0)
@@ -67,6 +72,8 @@ namespace LittleSteve.Modules
             }
         }
         [Command("add")]
+        [RequireOwnerOrAdmin]
+        [Summary("Add twitch channel to follow in a specified channel")]
         public async Task AddTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
@@ -91,7 +98,7 @@ namespace LittleSteve.Modules
                 _botContext.TwitchStreamers.Add(user);
                 JobManager.AddJob(
                     () => new TwitchMonitoringJob(user.Id, _twitchService,
-                        Context.Provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                        _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
                     s => s.WithName(userResponse.DisplayName).ToRunEvery(60).Seconds());
             }
 
@@ -120,20 +127,25 @@ namespace LittleSteve.Modules
         }
 
         [Command("remove")]
+        [RequireOwnerOrAdmin]
+        [Summary("Removed followed Twitch channel from channel")]
         public async Task RemoveTwitch(string twitchName, IGuildChannel guildChannel)
         {
-            var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
+            var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
+                .FirstOrDefaultAsync(x => x.Name.Equals(twitchName,StringComparison.CurrentCultureIgnoreCase));
 
-            if (userResponse is null)
+            if (user is null)
             {
                 await ReplyAsync("User Not Found");
                 return;
             }
 
-            var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
-                .FirstOrDefaultAsync(x => x.Id == long.Parse(userResponse.Id));
-
             var alert = user.TwitchAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long) guildChannel.Id);
+            if (alert is null)
+            {
+                await ReplyAsync($"This channel doesnt contain an alert for {user.Name}");
+                return;
+            }
             user.TwitchAlertSubscriptions.Remove(alert);
             if (Context.GuildOwner.TwitchStreamerId == user.Id)
             {
@@ -142,11 +154,7 @@ namespace LittleSteve.Modules
             }
             
             
-            if (alert is null)
-            {
-                await ReplyAsync($"This channel doesnt contain an alert for {user.Name}");
-                return;
-            }
+        
             var changes = _botContext.SaveChanges();
 
             if (changes > 0)
@@ -157,6 +165,11 @@ namespace LittleSteve.Modules
             {
                 await ReplyAsync($"Unable to remove Alert for {user.Name}");
             }
+        }
+
+        protected override void AfterExecute(CommandInfo command)
+        {
+            _botContext.Dispose();
         }
     }
 }

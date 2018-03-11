@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace LittleSteve.Modules
 {
-
+    [Name("Aslan")]
     public class AslanModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly ImgurService _imgurService;
@@ -26,6 +26,8 @@ namespace LittleSteve.Modules
             _client = client;
         }
         [Command("aslan",RunMode = RunMode.Async)]
+        [Alias("cat")]
+        [Summary("Get a picture of Aslan")]
         public async Task Aslan([Remainder] string question = null)
         {
             var album = await _imgurService.GetAlbumAsync(_config.ImgurAlbumId);

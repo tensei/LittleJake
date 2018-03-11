@@ -32,7 +32,7 @@ namespace LittleSteve.Services
             return _api.Streams.v5.BroadcasterOnlineAsync(channelId.ToString());
         }
 
-        public async Task<Stream> GetStream(long channelId)
+        public async Task<Stream> GetStreamAsync(long channelId)
         {
             return (await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString())).Stream;
         }

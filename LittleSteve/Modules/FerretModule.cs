@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LittleSteve.Modules
 {
+    [Name("Ferret")]
     public class FerretModule : ModuleBase<SteveBotCommandContext>
     {
         private readonly FerretService _ferretService;
@@ -21,6 +22,7 @@ namespace LittleSteve.Modules
             _httpClient = httpClient;
         }
         [Command("ferret",RunMode = RunMode.Async)]
+        [Summary("Get a picture of a ferret")]
         public async Task Ferret([Remainder] string question = null)
         {
             var picture = await _ferretService.GetFerretPicture();

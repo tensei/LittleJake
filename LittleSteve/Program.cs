@@ -14,8 +14,16 @@ namespace LittleSteve
                 // .WriteTo.File(new JsonFormatter(renderMessage: true),"log.txt", rollingInterval: RollingInterval.Day)
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
-
-            await new SteveBot().StartAsync();
+            try
+            {
+                await new SteveBot().StartAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+           
            
         }
     }

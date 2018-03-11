@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -13,6 +14,7 @@ using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TwitchLib.Models.API.v5.Streams;
+using TimeUnit = Humanizer.Localisation.TimeUnit;
 
 namespace LittleSteve.Jobs
 {
@@ -62,15 +64,13 @@ namespace LittleSteve.Jobs
                 // stream started
                 if (isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
-                    var stream = _twitchService.GetStream(_channelId).AsSync(false);
+                    var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
 
                     streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
-                        var message = channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream))
-                            .AsSync(false);
-                        subscription.MessageId = (long) message.Id;
+                        var messageId = CreateTwitchMessage(streamer,stream,subscription).AsSync(false);
+                        subscription.MessageId =  messageId;
                     }
 
                     _botContext.SaveChanges();
@@ -80,14 +80,19 @@ namespace LittleSteve.Jobs
                 // stream has started and we update the message embed
                 if (isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-                    var stream = _twitchService.GetStream(_channelId).AsSync(false);
+                    var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
                     if (stream is null)
                     {
                         return;
                     }
-
+                    
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
+                        if (subscription.MessageId == 0)
+                        {
+                            var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
+                            subscription.MessageId = messageId;
+                        }
                         var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
                         var message =
                             channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
@@ -113,7 +118,7 @@ namespace LittleSteve.Jobs
                     description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
                     description.AppendLine($"**Ended at:** {streamer.StreamEndTime:g} UTC");
                     description.AppendLine(string.Empty);
-                    description.AppendLine($"**Total Time:** {streamer.StreamLength.Humanize(3)}");
+                    description.AppendLine($"**Total Time:** {streamer.StreamLength.Humanize(2,maxUnit:TimeUnit.Hour,minUnit:TimeUnit.Minute,collectionSeparator: " ")}");
 
 
                     var embed = new EmbedBuilder()
@@ -143,8 +148,17 @@ namespace LittleSteve.Jobs
             }
         }
 
+        private async  Task<long> CreateTwitchMessage(TwitchStreamer streamer, Stream stream, TwitchAlertSubscription subscription )
+        {
+            var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+            var message = await channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream));
+            return (long) message.Id;
+        }
+
         private Embed CreateTwitchEmbed(TwitchStreamer streamer, Stream stream)
         {
+            var timeLive = DateTimeOffset.UtcNow - streamer.SteamStartTime;
+
             return new EmbedBuilder()
                 .WithAuthor($"{streamer.Name} is live", url: $"https://twitch.tv/{streamer.Name}")
                 .WithTitle($"{stream.Channel.Status}")
@@ -155,6 +169,7 @@ namespace LittleSteve.Jobs
                 //we add the timeseconds so the image wont be used from the cache 
                 .WithImageUrl(
                     $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
+                .WithFooter($"Live for {timeLive.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Second)}")
                 .Build();
         }
     }

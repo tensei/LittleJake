@@ -15,6 +15,7 @@ namespace LittleSteve.Modules
 {
     [RequireContext(ContextType.Guild)]
     [Group("guild")]
+    [Name("Guild")]
     public class GuildModule : InteractiveBase<SteveBotCommandContext>
     {
         private readonly SteveBotContext _botContext;
@@ -25,6 +26,7 @@ namespace LittleSteve.Modules
         }
         [RequireOwnerOrAdmin]
         [Command("setup", RunMode = RunMode.Async)]
+        [Summary("Setup guild with default social media accounts")]
         public async Task Setup()
         {
 
@@ -109,6 +111,7 @@ namespace LittleSteve.Modules
      
         [RequireOwnerOrAdmin]
         [Command("twitter", RunMode = RunMode.Async)]
+        [Summary("Set the default twitter for guild")]
         public async Task DefaultTwitter(string twitterName)
         {
             var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x => x.ScreenName.Equals(twitterName, StringComparison.CurrentCultureIgnoreCase));
@@ -135,6 +138,7 @@ namespace LittleSteve.Modules
         }
         [RequireOwnerOrAdmin]
         [Command("youtube", RunMode = RunMode.Async)]
+        [Summary("Set default Youtube channel for guild")]
         public async Task DefaultYoutube(string youtubeName)
         {
             var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x => x.Name.Equals(youtubeName, StringComparison.CurrentCultureIgnoreCase));
@@ -160,6 +164,7 @@ namespace LittleSteve.Modules
         }
         [RequireOwnerOrAdmin]
         [Command("twitch", RunMode = RunMode.Async)]
+        [Summary("Set default twitch streamer for guild")]
         public async Task DefaultTwitch(string twitchName)
         {
             var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x => x.Name.Equals(twitchName, StringComparison.CurrentCultureIgnoreCase));
@@ -189,7 +194,7 @@ namespace LittleSteve.Modules
             var changes = await _botContext.SaveChangesAsync();
             if (changes > 0)
             {
-                await ReplyAsync($"Save Default Account");
+                await ReplyAsync($"Saved Default Account");
             }
             else
             {

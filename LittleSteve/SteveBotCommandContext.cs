@@ -13,12 +13,13 @@ namespace LittleSteve
         public SteveBotCommandContext(DiscordSocketClient client, SocketUserMessage msg, IServiceProvider provider) :
             base(client, msg)
         {
-            Provider = provider;
-            GuildOwner = Provider.GetService<SteveBotContext>().Find<GuildOwner>((long)base.Guild.OwnerId,(long) base.Guild.Id);
+         //   Provider = provider;
+            
+            GuildOwner = provider.GetService<SteveBotContext>().Find<GuildOwner>((long)base.Guild.OwnerId,(long) base.Guild.Id);
 
         }
 
-        public IServiceProvider Provider { get; }
+       // public IServiceProvider Provider { get; }
         public GuildOwner GuildOwner { get; }
     }
 }
