@@ -9,11 +9,11 @@ before_build:
   - cmd: dotnet --version
   # Display minimal restore text
   - cmd: dotnet restore ./LittleSteve/LittleSteve.csproj
-build:
-    project: LittleSteve.sln
-    verbosity: minimal
+build_script:
+  # output will be in ./src/bin/debug/netcoreapp1.1/publish
+  - cmd: dotnet publish -c Release
 test: off  
 artifacts:
-- path: '\LittleSteve\bin\Release\netcoreapp2.0\publish'
+- path: './LittleSteve/bin/Release/netcoreapp2.0/publish'
   name: 'LittleSteve.{version}'
 deploy: off
