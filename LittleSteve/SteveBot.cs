@@ -55,6 +55,7 @@ namespace LittleSteve
 
             using (var context = _services.GetService<SteveBotContext>())
             {
+                context.Database.Migrate();
                 foreach (var user in context.TwitterUsers)
                 {
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),

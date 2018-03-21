@@ -1,6 +1,6 @@
 ﻿namespace LittleSteve.Modules
 {
-    public class InfoModule
+    public class InfoModule 
     {
     }
 }

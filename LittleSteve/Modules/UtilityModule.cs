@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -44,10 +46,18 @@ namespace LittleSteve.Modules
             await ReplyAsync("", embed: embed.Build());
         }
 
-        [Command("test")]
-        [RequireOwnerOrAdmin]
-        public async Task Test()
+        [Command("bot")]
+        [Summary("Bot stuff")]
+        public async Task Bot()
         {
+            var builder = new StringBuilder()
+
+                .AppendLine("Made with ♥ by Thing#0001")
+                .AppendLine("If you want the bot to do something let me know")
+                .AppendLine("Or even better open up an issue on Github detailing your wanted functionality")
+                .AppendLine("https://github.com/niceprogramming/LittleSteve");
+
+            await ReplyAsync(builder.ToString());
         }
     }
 }

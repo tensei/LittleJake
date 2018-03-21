@@ -9,6 +9,10 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CodeHollow.FeedReader" Version="1.1.1" />
     <PackageReference Include="CoreTweet" Version="0.8.2.404" />
