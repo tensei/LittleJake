@@ -13,3 +13,7 @@ build:
     project: LittleSteve.sln
     verbosity: minimal
 test: off  
+artifacts:
+- path: '\LittleSteve\bin\Release\netcoreapp2.0\publish'
+  name: 'LittleSteve.{version}'
+deploy: off
