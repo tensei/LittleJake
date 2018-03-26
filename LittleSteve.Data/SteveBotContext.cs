@@ -17,6 +17,7 @@ namespace LittleSteve.Data
         public DbSet<TwitchAlertSubscription> TwitchAlertSubscriptions { get; set; }
         public DbSet<Youtuber> Youtubers { get; set; }
         public DbSet<YoutubeAlertSubscription> YoutubeAlertSubscriptions { get; set; }
+        public DbSet<UserBlacklist> UserBlacklists { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -75,6 +76,8 @@ namespace LittleSteve.Data
                 t.HasIndex(x => x.YoutuberId);
                 t.HasOne(x => x.Youtuber).WithMany(x => x.YoutubeAlertSubscriptions).HasForeignKey(x => x.YoutuberId);
             });
+
+            modelBuilder.Entity<UserBlacklist>(b => { b.HasKey(x => new {x.GuildId, x.UserId}); });
         }
     }
 }

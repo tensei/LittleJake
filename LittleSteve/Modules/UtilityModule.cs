@@ -47,6 +47,7 @@ namespace LittleSteve.Modules
         }
 
         [Command("bot")]
+        [Alias("steve")]
         [Summary("Bot stuff")]
         public async Task Bot()
         {

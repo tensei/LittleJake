@@ -31,8 +31,10 @@ namespace LittleSteve.Modules
 
         [Command]
         [Summary("View lastest Video for the default Youtube Channel")]
-        [Remarks("?youtube")]
+        [Blacklist]
         [ThrottleCommand]
+        [Remarks("?youtube")]
+        
         public async Task Youtube()
         {
             if (string.IsNullOrWhiteSpace(Context.GuildOwner?.YoutuberId))

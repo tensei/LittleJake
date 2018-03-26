@@ -91,7 +91,7 @@ namespace LittleSteve
             _client.Log += BotLogHook.Log;
             _client.Ready += async () =>
             {
-                await _client.SetGameAsync("Deathmatch with Wander");
+                await _client.SetGameAsync("?help");
                 SetupJobs();
             };
 
@@ -112,6 +112,7 @@ namespace LittleSteve
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton<BlacklistService>()
                 .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))

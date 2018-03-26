@@ -5,6 +5,7 @@ using System.Reflection;
 using Discord;
 using Discord.Commands;
 using Humanizer;
+using LittleSteve.Preconditions;
 using LittleSteve.Utilities;
 
 namespace LittleSteve.Extensions
@@ -12,8 +13,11 @@ namespace LittleSteve.Extensions
     //https://github.com/AntiTcb/DiscordBots/blob/vs17-convert/src/DiscordBCL/Extensions/DiscordExtensions.cs
     public static class DiscordExtensions
     {
-        public static bool CanExecute(this CommandInfo cmd, ICommandContext ctx, IServiceProvider provider) =>
-            cmd.CheckPreconditionsAsync(ctx, provider).GetAwaiter().GetResult().IsSuccess;
+        public static bool CanExecute(this CommandInfo cmd, ICommandContext ctx, IServiceProvider provider)
+        {
+            return cmd.Preconditions.Any(x =>
+                x.GetType() != typeof(RequireOwnerOrAdminAttribute) && x.GetType() != typeof(RequireOwnerAttribute));
+        }
 
         public static bool CanExecute(this ModuleInfo module, ICommandContext ctx, IServiceProvider provider)
         {
@@ -31,7 +35,7 @@ namespace LittleSteve.Extensions
                 Description = "Commands available to you:",
                 Footer = new EmbedFooterBuilder
                 {
-                    Text = $"This message will delete itself in 30 seconds."
+                    Text = $"This message will delete itself in 60 seconds."
                 },
                 Author = new EmbedAuthorBuilder
                 {
@@ -46,6 +50,7 @@ namespace LittleSteve.Extensions
                 eb.AddField(m.Name, m.GetHelpString(ctx, provider));
             }
 
+            eb.AddField("Bot", "?bot ----- Bot Stuff");
             return eb.Build();
         }
 

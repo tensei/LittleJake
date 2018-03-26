@@ -37,6 +37,8 @@ namespace LittleSteve.Modules
 
         [Command]
         [Summary("Get the latest status from the default twitter")]
+        [Blacklist]
+        [ThrottleCommand]
         [Remarks("?twitter")]
         public async Task Twitter()
         {

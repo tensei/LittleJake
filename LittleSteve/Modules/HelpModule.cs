@@ -33,7 +33,7 @@ namespace LittleSteve.Modules
                 .OrderBy(m => m.Name);
 
             var sentMessage = await ReplyAsync("", embed: modules.GetEmbed(Context, _provider)).ConfigureAwait(false);
-            await Task.Delay(30000).ConfigureAwait(false);
+            await Task.Delay(60000).ConfigureAwait(false);
             await sentMessage.DeleteAsync().ConfigureAwait(false);
         }
 

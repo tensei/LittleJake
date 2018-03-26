@@ -18,6 +18,8 @@ using TimeUnit = Humanizer.Localisation.TimeUnit;
 namespace LittleSteve.Modules
 {
     [Group("twitch")]
+    [Alias("live")]
+
     [Name("Twitch")]
     [RequireContext(ContextType.Guild)]
     public class TwitchModule : ModuleBase<SteveBotCommandContext>
@@ -35,9 +37,11 @@ namespace LittleSteve.Modules
         }
 
         [Command]
+        [Blacklist]
+        [ThrottleCommand]
         [Summary("View the status of the default Twitch streamer")]
         [Remarks("?twitch")]
-        [ThrottleCommand]
+       
         public async Task Twitch()
         {
             if (Context.GuildOwner is null || Context.GuildOwner.TwitchStreamerId == 0)
