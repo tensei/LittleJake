@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleSteve.Data;
@@ -47,6 +49,7 @@ namespace LittleSteve
 
         private void SetupJobs()
         {
+            Thread.Sleep(5000);
             // These jobs wont scale well
             // But only one guild is using it and this implementation is meets my needs.
             var registry = new Registry();
@@ -92,15 +95,17 @@ namespace LittleSteve
             _client.Ready += async () =>
             {
                 await _client.SetGameAsync("?help");
-                SetupJobs();
+                
+              
+                
             };
 
             await _client.LoginAsync(TokenType.Bot, _config.Get<BotConfig>().DiscordToken);
 
             await _client.StartAsync();
-
+            
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
-
+            SetupJobs();
             await Task.Delay(-1);
         }
 

@@ -22,6 +22,7 @@ namespace LittleSteve.Modules
         [Command("ferret", RunMode = RunMode.Async)]
         [Summary("Get a picture of a ferret")]
         [Blacklist]
+        [BlockChannels()]
         [ThrottleCommand]
         [Remarks("?ferret what should i do today")]
         public async Task Ferret([Remainder] string question = null)

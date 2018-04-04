@@ -74,7 +74,8 @@ namespace LittleSteve.Modules
                         $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
                     .WithFooter($"Live for {timeLive.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Second)}")
                     .Build();
-                await ReplyAsync(string.Empty, embed: embed);
+                
+                await ReplyAsync("Go Here: https://www.destiny.gg/bigscreen ", embed: embed);
             }
         }
 

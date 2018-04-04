@@ -53,12 +53,16 @@ namespace LittleSteve.Modules
         {
             var builder = new StringBuilder()
 
-                .AppendLine("Made with ♥ by Thing#0001")
+                .AppendLine("I hate you all")
                 .AppendLine("If you want the bot to do something let me know")
                 .AppendLine("Or even better open up an issue on Github detailing your wanted functionality")
-                .AppendLine("https://github.com/niceprogramming/LittleSteve");
+                .AppendLine("https://github.com/niceprogramming/LittleSteve")
+
+                .AppendLine("From, Thing#0001");
 
             await ReplyAsync(builder.ToString());
         }
+       
+   
     }
 }

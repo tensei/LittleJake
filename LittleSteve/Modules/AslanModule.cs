@@ -26,6 +26,7 @@ namespace LittleSteve.Modules
         [Command("aslan", RunMode = RunMode.Async)]
         [Alias("cat")]
         [Blacklist]
+        [BlockChannels()]
         [ThrottleCommand]
         [Summary("Get a picture of Aslan")]
         [Remarks("?aslan Do I look cute today")]
