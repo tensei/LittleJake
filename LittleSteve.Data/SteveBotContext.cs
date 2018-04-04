@@ -51,7 +51,7 @@ namespace LittleSteve.Data
                 t.HasKey(x => x.Id);
                 t.Property(x => x.SteamStartTime).HasDefaultValue(new DateTimeOffset());
                 t.Property(x => x.StreamEndTime).HasDefaultValue(new DateTimeOffset());
-
+                t.HasMany(x => x.Games).WithOne(x => x.TwitchStreamer).HasForeignKey(x => x.TwitchStreamerId);
                 t.HasMany(x => x.TwitchAlertSubscriptions).WithOne(x => x.TwitchStreamer)
                     .HasForeignKey(x => x.TwitchStreamerId);
             });
@@ -78,6 +78,11 @@ namespace LittleSteve.Data
             });
 
             modelBuilder.Entity<UserBlacklist>(b => { b.HasKey(x => new {x.GuildId, x.UserId}); });
+            modelBuilder.Entity<Game>(g =>
+            {
+                g.HasKey(x => x.Id);
+                g.HasOne(x => x.TwitchStreamer).WithMany(x => x.Games);
+            });
         }
     }
 }

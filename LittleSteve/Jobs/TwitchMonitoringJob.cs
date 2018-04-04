@@ -8,6 +8,7 @@ using FluentScheduler;
 using Humanizer;
 using LittleSteve.Data;
 using LittleSteve.Data.Entities;
+using LittleSteve.Data.Migrations;
 using LittleSteve.Extensions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,7 @@ namespace LittleSteve.Jobs
             using (_botContext)
             {
                 var streamer = _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
+                    .Include(x => x.Games)
                     .FirstOrDefault(x => x.Id == _channelId);
                 if (streamer is null)
                 {
@@ -66,12 +68,17 @@ namespace LittleSteve.Jobs
                     var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
 
                     streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
+                    streamer.Games.Add(new Data.Entities.Game()
+                    {
+                        StartTime = DateTimeOffset.UtcNow,
+                        Name = string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game
+                    });
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
                         var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
                         subscription.MessageId = messageId;
                     }
-
+                
                     _botContext.SaveChanges();
                     return;
                 }
@@ -85,6 +92,19 @@ namespace LittleSteve.Jobs
                         return;
                     }
 
+                    var oldGame = streamer.Games.LastOrDefault();
+                    var currentGame = string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game;
+                    if (oldGame != null && oldGame.Name != currentGame)
+                    {
+                        oldGame.EndTime = DateTimeOffset.UtcNow;
+                        streamer.Games.Add(new Data.Entities.Game()
+                        {
+                            StartTime = DateTimeOffset.UtcNow,
+                            Name = currentGame
+                        });
+                    }
+              
+                 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
                         if (subscription.MessageId == 0)
@@ -111,13 +131,15 @@ namespace LittleSteve.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
+                    streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow;
+                    
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
                     var description = new StringBuilder();
                     description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
-                    description.AppendLine($"**Ended at:** {streamer.StreamEndTime:g} UTC");
-                    description.AppendLine(string.Empty);
+                    description.AppendLine($"__**Ended at:** {streamer.StreamEndTime:g} UTC__");
+                    
                     description.AppendLine(
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
 
@@ -126,6 +148,7 @@ namespace LittleSteve.Jobs
                         .WithAuthor($"{streamer.Name} was live", url: $"https://twitch.tv/{streamer.Name}")
                         .WithThumbnailUrl(user.Logo)
                         .WithDescription(description.ToString())
+                        .AddField("Games Played", string.Join("\n",streamer.Games.Where(x =>x.StartTime>= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")))
                         .Build();
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
