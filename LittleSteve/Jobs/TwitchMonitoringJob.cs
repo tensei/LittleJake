@@ -50,15 +50,16 @@ namespace LittleSteve.Jobs
 
                 //after the streamer goes offline the twitch api will sometimes says the stream is online
                 //we wait for 3 minutes after the last stream to make sure the streamer in actually on or offline
+                //this is arbitrary
                 if (DateTimeOffset.UtcNow - streamer.StreamEndTime < TimeSpan.FromMinutes(3))
                 {
                     return;
                 }
 
-                //stream has ended and we are waiting for startup
+                //stream has ended and we are waiting for startup again
                 if (!isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
-                    Console.WriteLine($"{streamer.Name} stream has ended");
+                    
                     return;
                 }
 
@@ -125,7 +126,7 @@ namespace LittleSteve.Jobs
                         message.ModifyAsync(x => x.Embed = CreateTwitchEmbed(streamer, stream)).AsSync(false);
                     }
 
-                    Console.WriteLine($"{streamer.Name} embed updated");
+                   
                 }
 
                 //stream ended
@@ -165,7 +166,7 @@ namespace LittleSteve.Jobs
                         message.ModifyAsync(x => x.Embed = embed).AsSync(false);
                     }
 
-                    Console.WriteLine($"{streamer.Name} stream ended");
+                    
                 }
 
                 _botContext.SaveChanges();
