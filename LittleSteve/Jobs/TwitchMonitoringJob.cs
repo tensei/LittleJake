@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ using LittleSteve.Extensions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using TwitchLib.Models.API.v5.Streams;
+using TwitchLib.Api.Models.v5.Streams;
 using TimeUnit = Humanizer.Localisation.TimeUnit;
 
 namespace LittleSteve.Jobs
@@ -59,10 +60,10 @@ namespace LittleSteve.Jobs
                 //stream has ended and we are waiting for startup again
                 if (!isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
-                    
                     return;
                 }
 
+                var missingChannels = new List<TwitchAlertSubscription>();
                 // stream started
                 if (isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
@@ -76,10 +77,17 @@ namespace LittleSteve.Jobs
                     });
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        if (channel is null && !missingChannels.Contains(subscription))
+                        {
+                            Log.Information($"{streamer.Name} removing channel {subscription.DiscordChannelId}");
+                            missingChannels.Add(subscription);
+                            continue;
+                        }
+                        var messageId = CreateTwitchMessage(streamer, stream, subscription, channel).AsSync(false);
                         subscription.MessageId = messageId;
                     }
-                
+
                     _botContext.SaveChanges();
                     return;
                 }
@@ -104,19 +112,26 @@ namespace LittleSteve.Jobs
                             Name = currentGame
                         });
                     }
-              
-                 
+
+
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
+
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+
+                        if (channel is null && !missingChannels.Contains(subscription))
+                        {
+                            Log.Information($"{streamer.Name} removing channel {subscription.DiscordChannelId}");
+                            missingChannels.Add(subscription);
+                            continue;
+                        }
                         if (subscription.MessageId == 0)
                         {
-                            var messageId = CreateTwitchMessage(streamer, stream, subscription).AsSync(false);
+                            var messageId = CreateTwitchMessage(streamer, stream, subscription, channel).AsSync(false);
                             subscription.MessageId = messageId;
                         }
-
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
                         var message =
-                            channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
+                            channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
                         if (message is null)
                         {
                             Log.Information("Message was not found");
@@ -126,7 +141,7 @@ namespace LittleSteve.Jobs
                         message.ModifyAsync(x => x.Embed = CreateTwitchEmbed(streamer, stream)).AsSync(false);
                     }
 
-                   
+
                 }
 
                 //stream ended
@@ -134,13 +149,13 @@ namespace LittleSteve.Jobs
                 {
                     streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow;
-                    
+
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
                     var description = new StringBuilder();
                     description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
                     description.AppendLine($"__**Ended at:** {streamer.StreamEndTime:g} UTC__");
-                    
+
                     description.AppendLine(
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
 
@@ -149,36 +164,40 @@ namespace LittleSteve.Jobs
                         .WithAuthor($"{streamer.Name} was live", url: $"https://twitch.tv/{streamer.Name}")
                         .WithThumbnailUrl(user.Logo)
                         .WithDescription(description.ToString())
-                        .AddField("Games Played", string.Join("\n",streamer.Games.Where(x =>x.StartTime>= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")))
+                        // .AddField("Games Played", string.Join("\n", streamer.Games.Where(x => x.StartTime >= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")))
                         .Build();
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
+                        if (channel is null && !missingChannels.Contains(subscription))
+                        {
+                            Log.Information($"{streamer.Name} removing channel {subscription.DiscordChannelId}");
+                            missingChannels.Add(subscription);
+                            continue;
+                        }
                         var message =
-                            channel.GetMessageAsync((ulong) subscription.MessageId).AsSync(false) as IUserMessage;
+                            channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
                         if (message is null)
                         {
                             Log.Information("Message was not found");
                             return;
                         }
 
-                        message.ModifyAsync(x => x.Embed = embed).AsSync(false);
+                        message.ModifyAsync(x => { x.Embed = embed; x.Content = string.Empty; }).AsSync(false);
                     }
 
-                    
                 }
-
+                missingChannels.ForEach(m => streamer.TwitchAlertSubscriptions.Remove(m));
                 _botContext.SaveChanges();
             }
         }
 
         private async Task<long> CreateTwitchMessage(TwitchStreamer streamer, Stream stream,
-            TwitchAlertSubscription subscription)
+            TwitchAlertSubscription subscription, ITextChannel channel)
         {
-            var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as ITextChannel;
-            var message = await channel.SendMessageAsync(string.Empty, embed: CreateTwitchEmbed(streamer, stream));
-            return (long) message.Id;
+            var message = await channel.SendMessageAsync("@everyone", embed: CreateTwitchEmbed(streamer, stream));
+            return (long)message.Id;
         }
 
         private Embed CreateTwitchEmbed(TwitchStreamer streamer, Stream stream)

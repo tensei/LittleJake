@@ -6,6 +6,7 @@ using LittleSteve.Data;
 using LittleSteve.Extensions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace LittleSteve.Jobs
 {
@@ -41,7 +42,12 @@ namespace LittleSteve.Jobs
 
             foreach (var subscription in youtuber.YoutubeAlertSubscriptions)
             {
-                var channel = _client.GetChannel((ulong) subscription.DiscordChannelId) as SocketTextChannel;
+                var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
+                if (channel is null)
+                {
+                    Log.Information($"{youtuber.Name} missing channel {subscription.DiscordChannelId}");
+                    continue;
+                }
                 channel.SendMessageAsync(video.Url);
             }
 

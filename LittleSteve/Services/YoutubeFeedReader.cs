@@ -28,11 +28,11 @@ namespace LittleSteve.Services
                 }).ToList();
 
 
-                return new YoutubeFeed {YoutubeVideos = videos};
+                return new YoutubeFeed { YoutubeVideos = videos };
             }
-            catch (XmlException e)
+            catch (XmlException)
             {
-                return new YoutubeFeed {YoutubeVideos = new List<YoutubeVideo>()};
+                return new YoutubeFeed { YoutubeVideos = new List<YoutubeVideo>() };
             }
         }
 

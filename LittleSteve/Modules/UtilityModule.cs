@@ -46,23 +46,23 @@ namespace LittleSteve.Modules
             await ReplyAsync("", embed: embed.Build());
         }
 
-        [Command("bot")]
-        [Alias("steve")]
-        [Summary("Bot stuff")]
-        public async Task Bot()
-        {
-            var builder = new StringBuilder()
+        // [Command("bot")]
+        // [Alias("steve")]
+        // [Summary("Bot stuff")]
+        // public async Task Bot()
+        // {
+        //     var builder = new StringBuilder()
 
-                .AppendLine("I hate you all")
-                .AppendLine("If you want the bot to do something let me know")
-                .AppendLine("Or even better open up an issue on Github detailing your wanted functionality")
-                .AppendLine("https://github.com/niceprogramming/LittleSteve")
+        //         .AppendLine("I hate you all")
+        //         .AppendLine("If you want the bot to do something let me know")
+        //         .AppendLine("Or even better open up an issue on Github detailing your wanted functionality")
+        //         .AppendLine("https://github.com/niceprogramming/LittleSteve")
 
-                .AppendLine("From, Thing#0001");
+        //         .AppendLine("From, Tensei#0001");
 
-            await ReplyAsync(builder.ToString());
-        }
-       
-   
+        //     await ReplyAsync(builder.ToString());
+        // }
+
+
     }
 }

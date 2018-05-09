@@ -41,7 +41,7 @@ namespace LittleSteve.Modules
         [ThrottleCommand]
         [Summary("View the status of the default Twitch streamer")]
         [Remarks("?twitch")]
-       
+
         public async Task Twitch()
         {
             if (Context.GuildOwner is null || Context.GuildOwner.TwitchStreamerId == 0)
@@ -74,15 +74,15 @@ namespace LittleSteve.Modules
                         $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
                     .WithFooter($"Live for {timeLive.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Second)}")
                     .Build();
-                
-                await ReplyAsync("Go Here: https://www.destiny.gg/bigscreen ", embed: embed);
+
+                await ReplyAsync("Go Here: https://www.twitch.tv/jakenbakelive ", embed: embed);
             }
         }
 
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add twitch channel to follow in a specified channel")]
-        [Remarks("?twitch add destiny #destinyhub")]
+        [Remarks("?twitch add jakenbakelive #jakenbakehub")]
         public async Task AddTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var userResponse = await _twitchService.GetUserByNameAsync(twitchName);
@@ -108,10 +108,10 @@ namespace LittleSteve.Modules
                 JobManager.AddJob(
                     () => new TwitchMonitoringJob(user.Id, _twitchService,
                         _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
-                    s => s.WithName(userResponse.DisplayName).ToRunEvery(60).Seconds());
+                    s => s.WithName($"Twitch: {userResponse.DisplayName}").ToRunEvery(60).Seconds());
             }
 
-            if (user.TwitchAlertSubscriptions.Any(x => x.DiscordChannelId == (long) guildChannel.Id))
+            if (user.TwitchAlertSubscriptions.Any(x => x.DiscordChannelId == (long)guildChannel.Id))
             {
                 await ReplyAsync($"You already subscribed to {user.Name} in {guildChannel.Name}");
                 return;
@@ -119,7 +119,7 @@ namespace LittleSteve.Modules
 
             user.TwitchAlertSubscriptions.Add(new TwitchAlertSubscription
             {
-                DiscordChannelId = (long) guildChannel.Id,
+                DiscordChannelId = (long)guildChannel.Id,
                 TwitchStreamerId = user.Id
             });
 
@@ -138,7 +138,7 @@ namespace LittleSteve.Modules
         [Command("remove")]
         [RequireOwnerOrAdmin]
         [Summary("Removed followed Twitch channel from channel")]
-        [Remarks("?twitch remove destiny #destinyhub")]
+        [Remarks("?twitch remove jakenbakelive #jakenbakelivehub")]
         public async Task RemoveTwitch(string twitchName, IGuildChannel guildChannel)
         {
             var user = await _botContext.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions)
@@ -150,7 +150,7 @@ namespace LittleSteve.Modules
                 return;
             }
 
-            var alert = user.TwitchAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long) guildChannel.Id);
+            var alert = user.TwitchAlertSubscriptions.FirstOrDefault(x => x.DiscordChannelId == (long)guildChannel.Id);
             if (alert is null)
             {
                 await ReplyAsync($"This channel doesnt contain an alert for {user.Name}");
@@ -165,6 +165,11 @@ namespace LittleSteve.Modules
                 owner.TwitchStreamerId = 0;
             }
 
+            if (!user.TwitchAlertSubscriptions.Any())
+            {
+                JobManager.RemoveJob($"Twitch: {user.Name}");
+                _botContext.TwitchStreamers.Remove(user);
+            }
 
             var changes = _botContext.SaveChanges();
 

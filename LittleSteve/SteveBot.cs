@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,28 +60,40 @@ namespace LittleSteve
             using (var context = _services.GetService<SteveBotContext>())
             {
                 context.Database.Migrate();
-                foreach (var user in context.TwitterUsers)
+                foreach (var user in context.TwitterUsers.Include(x => x.TwitterAlertSubscriptions))
                 {
+                    if (!user.TwitterAlertSubscriptions.Any())
+                    {
+                        continue;
+                    }
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
                             _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
-                        .WithName(user.ScreenName).ToRunNow()
+                        .WithName($"Twitter: {user.ScreenName}").ToRunNow()
                         .AndEvery(60).Seconds();
                 }
 
-                foreach (var streamer in context.TwitchStreamers)
+                foreach (var streamer in context.TwitchStreamers.Include(x => x.TwitchAlertSubscriptions))
                 {
+                    if (!streamer.TwitchAlertSubscriptions.Any())
+                    {
+                        continue;
+                    }
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
                             _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
-                        .WithName(streamer.Name).ToRunNow()
+                        .WithName($"Twitch: {streamer.Name}").ToRunNow()
                         .AndEvery(60).Seconds();
                 }
 
-                foreach (var youtuber in context.Youtubers)
+                foreach (var youtuber in context.Youtubers.Include(x => x.YoutubeAlertSubscriptions))
                 {
+                    if (!youtuber.YoutubeAlertSubscriptions.Any())
+                    {
+                        continue;
+                    }
                     registry.Schedule(() =>
                             new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(),
                                 _services.GetService<DiscordSocketClient>()))
-                        .WithName(youtuber.Id).ToRunNow().AndEvery(5).Minutes();
+                        .WithName($"Youtube: {youtuber.Id}").ToRunNow().AndEvery(5).Minutes();
                 }
             }
 
@@ -95,15 +108,12 @@ namespace LittleSteve
             _client.Ready += async () =>
             {
                 await _client.SetGameAsync("?help");
-                
-              
-                
             };
 
             await _client.LoginAsync(TokenType.Bot, _config.Get<BotConfig>().DiscordToken);
 
             await _client.StartAsync();
-            
+
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
             SetupJobs();
             await Task.Delay(-1);
@@ -118,10 +128,8 @@ namespace LittleSteve
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<BlacklistService>()
-                .AddSingleton(new ImgurService(config.ImgurClientId))
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
-                .AddSingleton<FerretService>()
                 .AddSingleton<InteractiveService>()
                 .AddSingleton<HttpClient>()
                 .Configure<BotConfig>(_config)

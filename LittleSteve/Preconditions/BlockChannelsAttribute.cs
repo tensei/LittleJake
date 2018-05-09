@@ -7,7 +7,7 @@ using Discord.Commands;
 
 namespace LittleSteve.Preconditions
 {
-    public class BlockChannelsAttribute :PreconditionAttribute
+    public class BlockChannelsAttribute : PreconditionAttribute
     {
         private readonly ulong[] _channelIds;
 

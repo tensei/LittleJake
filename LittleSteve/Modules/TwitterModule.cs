@@ -55,7 +55,7 @@ namespace LittleSteve.Modules
         [Command("add")]
         [RequireOwnerOrAdmin]
         [Summary("Add twitter account to follow in a specified channel")]
-        [Remarks("?twitter add destiny #destinyhub")]
+        [Remarks("?twitter add jakenbakelive #jakenbakelivehub")]
         public async Task AddTwitter(string twitterName, IGuildChannel guildChannel)
         {
             var userResponse = await _twitterService.GetUserFromHandle(twitterName);
@@ -82,10 +82,10 @@ namespace LittleSteve.Modules
                 JobManager.AddJob(
                     () => new TwitterMonitoringJob(user.Id, _twitterService,
                         _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
-                    s => s.WithName(userResponse.ScreenName).ToRunEvery(30).Seconds());
+                    s => s.WithName($"Twitter: {userResponse.ScreenName}").ToRunEvery(30).Seconds());
             }
 
-            if (user.TwitterAlertSubscriptions.Any(x => x.DiscordChannelId == (long) guildChannel.Id))
+            if (user.TwitterAlertSubscriptions.Any(x => x.DiscordChannelId == (long)guildChannel.Id))
             {
                 await ReplyAsync($"You already subscribed to {user.ScreenName} in {guildChannel.Name}");
                 return;
@@ -93,7 +93,7 @@ namespace LittleSteve.Modules
 
             user.TwitterAlertSubscriptions.Add(new TwitterAlertSubscription
             {
-                DiscordChannelId = (long) guildChannel.Id,
+                DiscordChannelId = (long)guildChannel.Id,
                 TwitterUserId = user.Id
             });
 
@@ -112,7 +112,7 @@ namespace LittleSteve.Modules
         [Command("remove")]
         [RequireOwnerOrAdmin]
         [Summary("Remove twitter account follow in a specified channel")]
-        [Remarks("?twitter remove destiny #destinyhub")]
+        [Remarks("?twitter remove jakenbakelive #jakenbakelivehub")]
         public async Task RemoveTwitter(string twitterName, IGuildChannel guildChannel)
         {
             var twitter = await _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions).FirstOrDefaultAsync(
@@ -126,7 +126,7 @@ namespace LittleSteve.Modules
             }
 
             var alert = twitter.TwitterAlertSubscriptions.FirstOrDefault(x =>
-                x.DiscordChannelId == (long) guildChannel.Id);
+                x.DiscordChannelId == (long)guildChannel.Id);
             if (alert is null)
             {
                 await ReplyAsync($"This channel doesnt contain an alert for {twitter.ScreenName}");
@@ -139,6 +139,12 @@ namespace LittleSteve.Modules
                 var owner = await _botContext.GuildOwners.FindAsync(Context.GuildOwner.DiscordId,
                     Context.GuildOwner.GuildId);
                 owner.TwitterUserId = 0;
+            }
+
+            if (!twitter.TwitterAlertSubscriptions.Any())
+            {
+                JobManager.RemoveJob($"Twitter: {twitter.Name}");
+                _botContext.TwitterUsers.Remove(twitter);
             }
 
             var changes = _botContext.SaveChanges();

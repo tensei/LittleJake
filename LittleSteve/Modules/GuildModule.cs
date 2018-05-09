@@ -30,8 +30,8 @@ namespace LittleSteve.Modules
             await ReplyAsync($"Setting up Guild for {Context.Guild.Owner.Username}");
             var owner = new GuildOwner
             {
-                DiscordId = (long) Context.Guild.OwnerId,
-                GuildId = (long) Context.Guild.Id
+                DiscordId = (long)Context.Guild.OwnerId,
+                GuildId = (long)Context.Guild.Id
             };
             await ReplyAsync(
                 "Would you like to setup Social Media Notifications? If you do please add the accounts you want to follow before continuing.\n\n**Type Yes to continue or Literally anything else to skip this**");
@@ -109,7 +109,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("twitter", RunMode = RunMode.Async)]
         [Summary("Set the default twitter for guild")]
-        [Remarks("?guild twitter omnidestiny")]
+        [Remarks("?guild twitter jakenbakelive")]
         public async Task DefaultTwitter(string twitterName)
         {
             var twitter = await _botContext.TwitterUsers.FirstOrDefaultAsync(x =>
@@ -120,8 +120,8 @@ namespace LittleSteve.Modules
             }
             else
             {
-                var owner = await _botContext.GuildOwners.FindAsync((long) Context.Guild.OwnerId,
-                    (long) Context.Guild.Id);
+                var owner = await _botContext.GuildOwners.FindAsync((long)Context.Guild.OwnerId,
+                    (long)Context.Guild.Id);
 
                 if (owner is null)
                 {
@@ -137,7 +137,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("youtube", RunMode = RunMode.Async)]
         [Summary("Set default Youtube channel for guild")]
-        [Remarks("?guild youtube destiny")]
+        [Remarks("?guild youtube UCiVOmPv52Quv0Y4IwAxqpOQ")]
         public async Task DefaultYoutube(string youtubeName)
         {
             var youtube = await _botContext.Youtubers.FirstOrDefaultAsync(x =>
@@ -148,8 +148,8 @@ namespace LittleSteve.Modules
             }
             else
             {
-                var owner = await _botContext.GuildOwners.FindAsync((long) Context.Guild.OwnerId,
-                    (long) Context.Guild.Id);
+                var owner = await _botContext.GuildOwners.FindAsync((long)Context.Guild.OwnerId,
+                    (long)Context.Guild.Id);
 
                 if (owner is null)
                 {
@@ -165,7 +165,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         [Command("twitch", RunMode = RunMode.Async)]
         [Summary("Set default twitch streamer for guild")]
-        [Remarks("?guild twitch destiny")]
+        [Remarks("?guild twitch jakenbakelive")]
         public async Task DefaultTwitch(string twitchName)
         {
             var twitch = await _botContext.TwitchStreamers.FirstOrDefaultAsync(x =>
@@ -176,8 +176,8 @@ namespace LittleSteve.Modules
             }
             else
             {
-                var owner = await _botContext.GuildOwners.FindAsync((long) Context.Guild.OwnerId,
-                    (long) Context.Guild.Id);
+                var owner = await _botContext.GuildOwners.FindAsync((long)Context.Guild.OwnerId,
+                    (long)Context.Guild.Id);
 
                 if (owner is null)
                 {

@@ -22,18 +22,18 @@ namespace LittleSteve.Services
         }
 
         public async Task<Status> GetLatestTweetForUserAsync(long userId) =>
-            (await _token.Statuses.UserTimelineAsync(userId, 1)).Single();
+            (await _token.Statuses.UserTimelineAsync(userId, 1, exclude_replies: true, include_rts: false)).Single();
 
         public async Task<Status> GetTweetByIdAsync(long tweetId)
         {
-            var tweets = await _token.Statuses.LookupAsync(new List<long> {tweetId}, tweet_mode: TweetMode.Extended);
+            var tweets = await _token.Statuses.LookupAsync(new List<long> { tweetId }, tweet_mode: TweetMode.Extended);
             return tweets.FirstOrDefault();
         }
 
         public async Task<IEnumerable<Status>> GetTweetsSinceAsync(long userId, long tweetId, int count = 50)
         {
             var tweets =
-                await _token.Statuses.UserTimelineAsync(userId, count, tweetId, tweet_mode: TweetMode.Extended);
+                await _token.Statuses.UserTimelineAsync(userId, count, tweetId, exclude_replies: true, include_rts: false, tweet_mode: TweetMode.Extended);
             return tweets.OrderBy(x => x.CreatedAt);
         }
 
@@ -43,7 +43,7 @@ namespace LittleSteve.Services
             {
                 return await _token.Users.ShowAsync(handle);
             }
-            catch (TwitterException e)
+            catch (TwitterException)
             {
                 return null;
             }

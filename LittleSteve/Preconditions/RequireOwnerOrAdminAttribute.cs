@@ -14,7 +14,7 @@ namespace LittleSteve.Preconditions
         {
             var user = context.User as IGuildUser;
             if (user.GuildPermissions.Administrator ||
-                (await context.Client.GetApplicationInfoAsync()).Owner.Username == user.Username)
+                (await context.Client.GetApplicationInfoAsync()).Owner.Id == user.Id)
             {
                 return PreconditionResult.FromSuccess();
             }

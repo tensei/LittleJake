@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Discord;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleSteve.Data;
+using LittleSteve.Data.Entities;
 using LittleSteve.Extensions;
 using LittleSteve.Services;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,7 @@ namespace LittleSteve.Jobs
 
         public void Execute()
         {
+            var missingChannels = new List<TwitterAlertSubscription>();
             using (_botContext)
             {
                 var user = _botContext.TwitterUsers.Include(x => x.TwitterAlertSubscriptions)
@@ -39,10 +42,18 @@ namespace LittleSteve.Jobs
 
                 if (user.LastTweetId == 0)
                 {
+
+                    Log.Information($"reached -1");
                     var tweet = _twitterService.GetLatestTweetForUserAsync(_twitterUserId).AsSync(false);
                     foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) twitterAlert.DiscordChannelId) as ITextChannel;
+                        var channel = _client.GetChannel((ulong)twitterAlert.DiscordChannelId) as ITextChannel;
+                        if (channel is null)
+                        {
+                            Log.Information($"{user.ScreenName} removing for channel {twitterAlert.DiscordChannelId}");
+                            missingChannels.Add(twitterAlert);
+                            continue;
+                        }
                         channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}")
                             .AsSync(false);
                     }
@@ -58,11 +69,15 @@ namespace LittleSteve.Jobs
                     {
                         return;
                     }
-
                     foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
-                        var channel = _client.GetChannel((ulong) twitterAlert.DiscordChannelId) as ITextChannel;
-
+                        var channel = _client.GetChannel((ulong)twitterAlert.DiscordChannelId) as ITextChannel;
+                        if (channel is null)
+                        {
+                            Log.Information($"{user.ScreenName} removing for channel {twitterAlert.DiscordChannelId}");
+                            missingChannels.Add(twitterAlert);
+                            continue;
+                        }
                         foreach (var tweet in tweets)
                         {
                             channel.SendMessageAsync($@"https://twitter.com/{user.ScreenName}/status/{tweet.Id}")
@@ -70,9 +85,9 @@ namespace LittleSteve.Jobs
                             Log.Information("{date}: {tweet}", tweet.CreatedAt, tweet.FullText);
                         }
                     }
-
-
                     user.LastTweetId = tweets.Last().Id;
+
+                    missingChannels.ForEach(m => user.TwitterAlertSubscriptions.Remove(m));
                 }
 
                 _botContext.SaveChanges();

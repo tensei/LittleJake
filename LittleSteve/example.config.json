@@ -5,16 +5,10 @@
     "AccessToken": "",
     "AccessTokenSecret": ""
   },
-
-
   "ConnectionString": "",
   "YoutubeKey": "",
   "TwitchClientId": "",
   "DiscordToken": "",
-  "ImgurClientId": "",
-  "DestinyCalendar": "",
-  "ImgurAlbumId": "",
   "ThrottleLength": "",
   "Prefix": ""
-
 }

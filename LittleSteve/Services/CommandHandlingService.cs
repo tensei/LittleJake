@@ -24,7 +24,7 @@ namespace LittleSteve.Services
             _commands = commands;
             _config = config;
             _commands.Log += BotLogHook.Log;
-            
+
             _client.MessageReceived += MessageReceived;
         }
 
@@ -33,11 +33,11 @@ namespace LittleSteve.Services
             _provider = provider;
             _commands.AddTypeReader<ModuleInfo>(new ModuleInfoTypeReader());
             _commands.AddTypeReader<CommandInfo>(new CommandInfoTypeReader());
-            
+
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            
+
         }
-        
+
         private async Task MessageReceived(SocketMessage rawMessage)
         {
             var stopwatch = new Stopwatch();
@@ -71,7 +71,7 @@ namespace LittleSteve.Services
             }
 
             stopwatch.Stop();
-            Log.Information($"Took {stopwatch.ElapsedMilliseconds}ms to process: {message}");
+            Log.Information($"Took {stopwatch.ElapsedMilliseconds}ms to process: {message.Author} {message}");
         }
     }
 }
