@@ -135,7 +135,7 @@ namespace LittleSteve.Jobs
                         if (message is null)
                         {
                             Log.Information("Message was not found");
-                            return;
+                            continue;
                         }
 
                         message.ModifyAsync(x => x.Embed = CreateTwitchEmbed(streamer, stream)).AsSync(false);
@@ -181,7 +181,7 @@ namespace LittleSteve.Jobs
                         if (message is null)
                         {
                             Log.Information("Message was not found");
-                            return;
+                            continue;
                         }
 
                         message.ModifyAsync(x => { x.Embed = embed; x.Content = string.Empty; }).AsSync(false);

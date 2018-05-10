@@ -42,8 +42,6 @@ namespace LittleSteve.Jobs
 
                 if (user.LastTweetId == 0)
                 {
-
-                    Log.Information($"reached -1");
                     var tweet = _twitterService.GetLatestTweetForUserAsync(_twitterUserId).AsSync(false);
                     foreach (var twitterAlert in user.TwitterAlertSubscriptions)
                     {
