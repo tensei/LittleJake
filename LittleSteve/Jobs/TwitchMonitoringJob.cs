@@ -196,7 +196,7 @@ namespace LittleSteve.Jobs
         private async Task<long> CreateTwitchMessage(TwitchStreamer streamer, Stream stream,
             TwitchAlertSubscription subscription, ITextChannel channel)
         {
-            var message = await channel.SendMessageAsync("@everyone", embed: CreateTwitchEmbed(streamer, stream));
+            var message = await channel.SendMessageAsync($"@everyone {streamer.Name} is live!", embed: CreateTwitchEmbed(streamer, stream));
             return (long)message.Id;
         }
 
