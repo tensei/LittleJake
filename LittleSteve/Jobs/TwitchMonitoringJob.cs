@@ -134,7 +134,8 @@ namespace LittleSteve.Jobs
                             channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
                         if (message is null)
                         {
-                            Log.Information("Message was not found");
+                            Log.Information($"Message was not found in channel {channel.Name}, reposting it");
+                            subscription.MessageId = CreateTwitchMessage(streamer, stream, subscription, channel).AsSync(false);
                             continue;
                         }
 
@@ -180,7 +181,8 @@ namespace LittleSteve.Jobs
                             channel.GetMessageAsync((ulong)subscription.MessageId).AsSync(false) as IUserMessage;
                         if (message is null)
                         {
-                            Log.Information("Message was not found");
+                            Log.Information($"Message was not found in channel {channel.Name}. Posting new message!");
+                            subscription.MessageId = (long)channel.SendMessageAsync(string.Empty, embed: embed).AsSync(false).Id;
                             continue;
                         }
 
