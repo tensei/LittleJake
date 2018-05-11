@@ -13,12 +13,8 @@ namespace LittleSteve
             base(client, msg)
         {
             GuildOwner = provider.GetService<JakeBotContext>().Find<GuildOwner>((long)Guild.OwnerId, (long)Guild.Id);
-
         }
 
-
         public GuildOwner GuildOwner { get; }
-
-
     }
 }
