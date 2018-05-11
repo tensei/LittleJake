@@ -7,11 +7,11 @@ pull_requests:
 before_build:
 # Display .NET Core version
   
-  - ps: dotnet restore ./LittleSteve/LittleSteve.csproj
+  - ps: dotnet restore ./LittleJake/LittleJake.csproj
 build_script:
   - ps: dotnet publish -c Release
 test: off  
 artifacts:
-- path: './LittleSteve/bin/Release/netcoreapp2.0/publish'
-  name: LittleSteve
+- path: './LittleJake/bin/Release/netcoreapp2.0/publish'
+  name: LittleJake
 deploy: off
