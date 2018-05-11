@@ -61,7 +61,7 @@ namespace LittleSteve.Services
                 return;
             }
 
-            var context = new SteveBotCommandContext(_client, message, _provider);
+            var context = new JakeBotCommandContext(_client, message, _provider);
 
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
 

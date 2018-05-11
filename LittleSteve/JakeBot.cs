@@ -21,13 +21,13 @@ using Serilog;
 
 namespace LittleSteve
 {
-    public class SteveBot
+    public class JakeBot
     {
         private readonly DiscordSocketClient _client;
         private readonly IConfiguration _config;
         private readonly IServiceProvider _services;
 
-        public SteveBot()
+        public JakeBot()
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -57,7 +57,7 @@ namespace LittleSteve
 
             registry.NonReentrantAsDefault();
 
-            using (var context = _services.GetService<SteveBotContext>())
+            using (var context = _services.GetService<JakeBotContext>())
             {
                 context.Database.Migrate();
                 foreach (var user in context.TwitterUsers.Include(x => x.TwitterAlertSubscriptions))
@@ -67,7 +67,7 @@ namespace LittleSteve
                         continue;
                     }
                     registry.Schedule(() => new TwitterMonitoringJob(user.Id, _services.GetService<TwitterService>(),
-                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
+                            _services.GetService<JakeBotContext>(), _services.GetService<DiscordSocketClient>()))
                         .WithName($"Twitter: {user.ScreenName}").ToRunNow()
                         .AndEvery(60).Seconds();
                 }
@@ -79,7 +79,7 @@ namespace LittleSteve
                         continue;
                     }
                     registry.Schedule(() => new TwitchMonitoringJob(streamer.Id, _services.GetService<TwitchService>(),
-                            _services.GetService<SteveBotContext>(), _services.GetService<DiscordSocketClient>()))
+                            _services.GetService<JakeBotContext>(), _services.GetService<DiscordSocketClient>()))
                         .WithName($"Twitch: {streamer.Name}").ToRunNow()
                         .AndEvery(60).Seconds();
                 }
@@ -91,7 +91,7 @@ namespace LittleSteve
                         continue;
                     }
                     registry.Schedule(() =>
-                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<SteveBotContext>(),
+                            new YoutubeMonitoringJob(youtuber.Id, _services.GetService<JakeBotContext>(),
                                 _services.GetService<DiscordSocketClient>()))
                         .WithName($"Youtube: {youtuber.Id}").ToRunNow().AndEvery(5).Minutes();
                 }
@@ -137,7 +137,7 @@ namespace LittleSteve
                 //We delegate the config object so we dont have to use IOptionsSnapshot or IOptions in our code
                 .AddTransient(provider => provider.GetRequiredService<IOptionsMonitor<BotConfig>>().CurrentValue)
                 .AddOptions()
-                .AddDbContext<SteveBotContext>(opt => opt.UseNpgsql(config.ConnectionString),
+                .AddDbContext<JakeBotContext>(opt => opt.UseNpgsql(config.ConnectionString),
                     ServiceLifetime.Transient)
                 .BuildServiceProvider();
         }

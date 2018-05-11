@@ -14,12 +14,12 @@ namespace LittleSteve.Jobs
 {
     public class TwitterMonitoringJob : IJob
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly DiscordSocketClient _client;
         private readonly TwitterService _twitterService;
         private readonly long _twitterUserId;
 
-        public TwitterMonitoringJob(long twitterUserId, TwitterService twitterService, SteveBotContext botContext,
+        public TwitterMonitoringJob(long twitterUserId, TwitterService twitterService, JakeBotContext botContext,
             DiscordSocketClient client)
         {
             _twitterUserId = twitterUserId;

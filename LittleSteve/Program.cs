@@ -12,14 +12,14 @@ namespace LittleSteve
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-               // .WriteTo.File(new JsonFormatter(renderMessage: true),"log.txt", rollingInterval: RollingInterval.Day)
+                //.WriteTo.File(new JsonFormatter(renderMessage: true), "log.txt", rollingInterval: RollingInterval.Day)
                 .Enrich.WithExceptionDetails()
                 .CreateLogger();
-           
-           
+
+
             try
             {
-                await new SteveBot().StartAsync();
+                await new JakeBot().StartAsync();
             }
             catch (Exception e)
             {

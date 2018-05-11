@@ -10,7 +10,7 @@ using System;
 
 namespace LittleSteve.Data.Migrations
 {
-    [DbContext(typeof(SteveBotContext))]
+    [DbContext(typeof(JakeBotContext))]
     [Migration("20180227023400_AddedTwitchEntities")]
     partial class AddedTwitchEntities
     {

@@ -12,13 +12,13 @@ namespace LittleSteve.Jobs
 {
     public class YoutubeMonitoringJob : IJob
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly string _channelId;
 
         private readonly DiscordSocketClient _client;
 
         // private readonly string _feedUrl;
-        public YoutubeMonitoringJob(string channelId, SteveBotContext botContext, DiscordSocketClient client)
+        public YoutubeMonitoringJob(string channelId, JakeBotContext botContext, DiscordSocketClient client)
         {
             _channelId = channelId;
             _botContext = botContext;

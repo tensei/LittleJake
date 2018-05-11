@@ -10,7 +10,7 @@ namespace LittleSteve.Modules
     //https://github.com/AntiTcb/DiscordBots/blob/vs17-convert/src/DiscordBCL/Modules/InfoModule.cs
 
     [Name("Help")]
-    public class HelpModule : ModuleBase<SteveBotCommandContext>
+    public class HelpModule : ModuleBase<JakeBotCommandContext>
     {
         private readonly IServiceProvider _provider;
 

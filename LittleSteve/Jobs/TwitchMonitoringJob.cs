@@ -21,12 +21,12 @@ namespace LittleSteve.Jobs
 {
     public class TwitchMonitoringJob : IJob
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly long _channelId;
         private readonly DiscordSocketClient _client;
         private readonly TwitchService _twitchService;
 
-        public TwitchMonitoringJob(long channelId, TwitchService twitchService, SteveBotContext botContext,
+        public TwitchMonitoringJob(long channelId, TwitchService twitchService, JakeBotContext botContext,
             DiscordSocketClient client)
         {
             _channelId = channelId;

@@ -18,12 +18,12 @@ namespace LittleSteve.Modules
     [Group("youtube")]
     [Name("Youtube")]
     [RequireContext(ContextType.Guild)]
-    public class YoutubeModule : ModuleBase<SteveBotCommandContext>
+    public class YoutubeModule : ModuleBase<JakeBotCommandContext>
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly IServiceProvider _provider;
 
-        public YoutubeModule(SteveBotContext botContext, IServiceProvider provider)
+        public YoutubeModule(JakeBotContext botContext, IServiceProvider provider)
         {
             _botContext = botContext;
             _provider = provider;
@@ -73,7 +73,7 @@ namespace LittleSteve.Modules
                 };
                 _botContext.Youtubers.Add(youtuber);
                 JobManager.AddJob(
-                    () => new YoutubeMonitoringJob(youtuber.Id, _provider.GetService<SteveBotContext>(),
+                    () => new YoutubeMonitoringJob(youtuber.Id, _provider.GetService<JakeBotContext>(),
                         Context.Client).Execute(), s => s.WithName($"Youtube: {youtubeId}").ToRunEvery(60).Seconds());
             }
 

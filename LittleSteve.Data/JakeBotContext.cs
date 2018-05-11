@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LittleSteve.Data
 {
-    public class SteveBotContext : DbContext
+    public class JakeBotContext : DbContext
     {
-        public SteveBotContext(DbContextOptions<SteveBotContext> options) : base(options)
+        public JakeBotContext(DbContextOptions<JakeBotContext> options) : base(options)
         {
         }
 
@@ -41,7 +41,7 @@ namespace LittleSteve.Data
 
             modelBuilder.Entity<GuildOwner>(g =>
             {
-                g.HasKey(x => new {x.DiscordId, x.GuildId});
+                g.HasKey(x => new { x.DiscordId, x.GuildId });
 
                 g.HasIndex(x => x.TwitterUserId);
             });
@@ -77,7 +77,7 @@ namespace LittleSteve.Data
                 t.HasOne(x => x.Youtuber).WithMany(x => x.YoutubeAlertSubscriptions).HasForeignKey(x => x.YoutuberId);
             });
 
-            modelBuilder.Entity<UserBlacklist>(b => { b.HasKey(x => new {x.GuildId, x.UserId}); });
+            modelBuilder.Entity<UserBlacklist>(b => { b.HasKey(x => new { x.GuildId, x.UserId }); });
             modelBuilder.Entity<Game>(g =>
             {
                 g.HasKey(x => x.Id);

@@ -17,7 +17,7 @@ namespace LittleSteve.Modules
     [Summary("A set of commands for executing C# code")]
     //https://github.com/Cisien/OniBot/blob/master/OniBot/Commands/EvalCommands.cs
     [Name("Eval")]
-    public class EvalModule : ModuleBase<SteveBotCommandContext>
+    public class EvalModule : ModuleBase<JakeBotCommandContext>
     {
         private static readonly Assembly[] assemblies =
         {

@@ -11,7 +11,7 @@ using LittleSteve.Services;
 namespace LittleSteve.Modules
 {
     [Group("blacklist")]
-    public class BlacklistModule : ModuleBase<SteveBotCommandContext>
+    public class BlacklistModule : ModuleBase<JakeBotCommandContext>
     {
         private readonly BlacklistService _blacklistService;
 
@@ -23,7 +23,7 @@ namespace LittleSteve.Modules
         [RequireOwnerOrAdmin]
         public async Task Add(IGuildUser guildUser)
         {
-           var user = await _blacklistService.Add((long) guildUser.Id, (long) Context.Guild.Id);
+            var user = await _blacklistService.Add((long)guildUser.Id, (long)Context.Guild.Id);
             if (user is null)
             {
                 await ReplyAsync("Unable to blacklist this user");

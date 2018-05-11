@@ -5,17 +5,17 @@ using Microsoft.Extensions.Configuration;
 namespace LittleSteve.Data
 {
     //This is only used for code first Migrations
-    public class SteveBotDesignTimeContextFactory : IDesignTimeDbContextFactory<SteveBotContext>
+    public class JakeBotDesignTimeContextFactory : IDesignTimeDbContextFactory<JakeBotContext>
     {
-        public SteveBotContext CreateDbContext(string[] args)
+        public JakeBotContext CreateDbContext(string[] args)
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("config.json")
                 .Build();
-            var options = new DbContextOptionsBuilder<SteveBotContext>();
+            var options = new DbContextOptionsBuilder<JakeBotContext>();
 
             options.UseNpgsql(config.GetSection("ConnectionString").Value);
-            return new SteveBotContext(options.Options);
+            return new JakeBotContext(options.Options);
         }
     }
 }

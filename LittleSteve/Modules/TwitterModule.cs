@@ -19,14 +19,14 @@ namespace LittleSteve.Modules
     [Group("twitter")]
     [Name("Twitter")]
     [RequireContext(ContextType.Guild)]
-    public class TwitterModule : ModuleBase<SteveBotCommandContext>
+    public class TwitterModule : ModuleBase<JakeBotCommandContext>
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly BotConfig _config;
         private readonly IServiceProvider _provider;
         private readonly TwitterService _twitterService;
 
-        public TwitterModule(TwitterService twitterService, SteveBotContext botContext, BotConfig config,
+        public TwitterModule(TwitterService twitterService, JakeBotContext botContext, BotConfig config,
             IServiceProvider provider)
         {
             _twitterService = twitterService;
@@ -81,7 +81,7 @@ namespace LittleSteve.Modules
                 _botContext.TwitterUsers.Add(user);
                 JobManager.AddJob(
                     () => new TwitterMonitoringJob(user.Id, _twitterService,
-                        _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                        _provider.GetService<JakeBotContext>(), Context.Client).Execute(),
                     s => s.WithName($"Twitter: {userResponse.ScreenName}").ToRunEvery(30).Seconds());
             }
 

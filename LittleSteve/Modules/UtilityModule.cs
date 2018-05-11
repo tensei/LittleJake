@@ -11,7 +11,7 @@ using LittleSteve.Preconditions;
 namespace LittleSteve.Modules
 {
     [Name("Utility")]
-    public class UtilityModule : ModuleBase<SteveBotCommandContext>
+    public class UtilityModule : ModuleBase<JakeBotCommandContext>
     {
         [Command("latency")]
         [RequireOwnerOrAdmin]

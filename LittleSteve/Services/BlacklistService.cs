@@ -19,9 +19,9 @@ namespace LittleSteve.Services
             _services = services;
         }
 
-        public async Task<UserBlacklist> Add(long userId,long guildId)
+        public async Task<UserBlacklist> Add(long userId, long guildId)
         {
-            using (var context = _services.GetService<SteveBotContext>())
+            using (var context = _services.GetService<JakeBotContext>())
             {
                 var blacklist = new UserBlacklist() { GuildId = guildId, UserId = userId };
                 if (await IsBlackListed(userId, guildId))
@@ -29,22 +29,22 @@ namespace LittleSteve.Services
                     return blacklist;
                 }
 
-                blacklist = new UserBlacklist() {GuildId = guildId, UserId = userId};
+                blacklist = new UserBlacklist() { GuildId = guildId, UserId = userId };
                 context.Add(blacklist);
                 var changes = await context.SaveChangesAsync();
-                return changes > 0 ?  blacklist : null;
+                return changes > 0 ? blacklist : null;
             }
         }
 
         public async Task<UserBlacklist> Remove(long userId, long guildId)
         {
-            using (var context = _services.GetService<SteveBotContext>())
+            using (var context = _services.GetService<JakeBotContext>())
             {
                 var blacklist = new UserBlacklist() { GuildId = guildId, UserId = userId };
                 if (await IsBlackListed(userId, guildId))
                 {
                     context.UserBlacklists.Remove(blacklist);
-                    return await context.SaveChangesAsync() > 0 ? blacklist: null;
+                    return await context.SaveChangesAsync() > 0 ? blacklist : null;
                 }
 
                 return blacklist;
@@ -52,7 +52,7 @@ namespace LittleSteve.Services
         }
         public async Task<bool> IsBlackListed(long userId, long guildId)
         {
-            using (var context = _services.GetService<SteveBotContext>())
+            using (var context = _services.GetService<JakeBotContext>())
             {
                 return await context.UserBlacklists.FindAsync(guildId, userId) != null;
             }

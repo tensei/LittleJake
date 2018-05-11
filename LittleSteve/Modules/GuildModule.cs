@@ -12,11 +12,11 @@ namespace LittleSteve.Modules
     [RequireContext(ContextType.Guild)]
     [Group("guild")]
     [Name("Guild (Admin Only)")]
-    public class GuildModule : InteractiveBase<SteveBotCommandContext>
+    public class GuildModule : InteractiveBase<JakeBotCommandContext>
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
 
-        public GuildModule(SteveBotContext botContext)
+        public GuildModule(JakeBotContext botContext)
         {
             _botContext = botContext;
         }

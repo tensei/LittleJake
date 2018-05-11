@@ -22,14 +22,14 @@ namespace LittleSteve.Modules
 
     [Name("Twitch")]
     [RequireContext(ContextType.Guild)]
-    public class TwitchModule : ModuleBase<SteveBotCommandContext>
+    public class TwitchModule : ModuleBase<JakeBotCommandContext>
     {
-        private readonly SteveBotContext _botContext;
+        private readonly JakeBotContext _botContext;
         private readonly IServiceProvider _provider;
         private readonly TwitchService _twitchService;
 
 
-        public TwitchModule(TwitchService twitchService, SteveBotContext botContext, IServiceProvider provider)
+        public TwitchModule(TwitchService twitchService, JakeBotContext botContext, IServiceProvider provider)
         {
             _twitchService = twitchService;
             _botContext = botContext;
@@ -107,7 +107,7 @@ namespace LittleSteve.Modules
                 _botContext.TwitchStreamers.Add(user);
                 JobManager.AddJob(
                     () => new TwitchMonitoringJob(user.Id, _twitchService,
-                        _provider.GetService<SteveBotContext>(), Context.Client).Execute(),
+                        _provider.GetService<JakeBotContext>(), Context.Client).Execute(),
                     s => s.WithName($"Twitch: {userResponse.DisplayName}").ToRunEvery(60).Seconds());
             }
 

@@ -19,7 +19,7 @@ namespace LittleSteve.Preconditions
             CommandInfo command, IServiceProvider services)
         {
             var expiryPeriod = TimeSpan.FromSeconds(services.GetService<BotConfig>().ThrottleLength);
-            if ((await context.Client.GetApplicationInfoAsync()).Owner.Username == context.User.Username)
+            if ((await context.Client.GetApplicationInfoAsync()).Owner.Id == context.User.Id)
             {
                 return PreconditionResult.FromSuccess();
             }
