@@ -25,7 +25,7 @@ namespace LittleJake.Modules
             await ReplyAsync($"Api Latency: {watch.ElapsedMilliseconds}ms");
         }
 
-        [Command("jobs")]
+        [Command("jobs", RunMode = RunMode.Async)]
         [RequireOwnerOrAdmin]
         [Summary("Show the current long running jobs")]
         public async Task JobsAsync()
