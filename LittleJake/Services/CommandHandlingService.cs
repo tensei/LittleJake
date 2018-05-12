@@ -35,7 +35,6 @@ namespace LittleJake.Services
             _commands.AddTypeReader<CommandInfo>(new CommandInfoTypeReader());
 
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-
         }
 
         private async Task MessageReceived(SocketMessage rawMessage)
@@ -52,7 +51,6 @@ namespace LittleJake.Services
             {
                 return;
             }
-
 
             var argPos = 0;
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||

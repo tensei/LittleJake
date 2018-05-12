@@ -50,6 +50,7 @@ namespace LittleJake.Services
                 return blacklist;
             }
         }
+        
         public async Task<bool> IsBlackListed(long userId, long guildId)
         {
             using (var context = _services.GetService<JakeBotContext>())
@@ -57,8 +58,5 @@ namespace LittleJake.Services
                 return await context.UserBlacklists.FindAsync(guildId, userId) != null;
             }
         }
-
-
-
     }
 }

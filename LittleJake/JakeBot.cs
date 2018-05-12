@@ -128,6 +128,7 @@ namespace LittleJake
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<BlacklistService>()
+                .AddSingleton<UserService>()
                 .AddSingleton(new TwitterService(config.TwitterTokens))
                 .AddSingleton(new TwitchService(config.TwitchClientId))
                 .AddSingleton<InteractiveService>()
