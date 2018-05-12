@@ -16,6 +16,11 @@ namespace LittleJake.Services
         {
             _client = client;
             _botContext = botContext;
+        }
+
+        public void Initialize()
+        {
+            Log.Information("Initializing UserService");
             _client.UserJoined += UserJoined;
             _client.UserLeft += UserLeft;
         }

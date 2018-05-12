@@ -115,6 +115,8 @@ namespace LittleJake
             await _client.StartAsync();
 
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
+            _services.GetRequiredService<UserService>().Initialize();
+
             SetupJobs();
             await Task.Delay(-1);
         }
