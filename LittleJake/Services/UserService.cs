@@ -28,14 +28,14 @@ namespace LittleJake.Services
         private Task UserLeft(SocketGuildUser user)
         {
             // TODO: add more stuff
-            Log.Information($"User: {user} left Guild: {user.Guild.Name}");
+            Log.Information($"Guild: {user.Guild.Name} User: {user} left");
             return Task.CompletedTask;
         }
 
         private Task UserJoined(SocketGuildUser user)
         {
             // TODO: add more stuff
-            Log.Information($"User: {user} joined Guild: {user.Guild.Name}");
+            Log.Information($"Guild: {user.Guild.Name} User: {user} joined");
             return Task.CompletedTask;
         }
     }
