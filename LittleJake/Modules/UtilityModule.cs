@@ -42,8 +42,14 @@ namespace LittleJake.Modules
             {
                 embed.AddField(schedule.Name, $"Next Run: {schedule.NextRun:G}");
             }
+            embed.Footer = new EmbedFooterBuilder
+            {
+                Text = $"This message will delete itself in 60 seconds."
+            };
 
-            await ReplyAsync("", embed: embed.Build());
+            var sentMessage = await ReplyAsync("", embed: embed.Build());
+            await Task.Delay(60000).ConfigureAwait(false);
+            await sentMessage.DeleteAsync().ConfigureAwait(false);
         }
 
         // [Command("bot")]
