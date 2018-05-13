@@ -68,8 +68,10 @@ namespace LittleJake.Jobs
                 if (isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
                     var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
+                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+                    var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(stream.CreatedAt.ToUniversalTime(), tkyZone);
 
-                    streamer.SteamStartTime = stream.CreatedAt.ToUniversalTime();
+                    streamer.SteamStartTime = tokyoTime;
                     streamer.Games.Add(new Data.Entities.Game()
                     {
                         StartTime = DateTimeOffset.UtcNow,
@@ -148,14 +150,18 @@ namespace LittleJake.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-                    streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
-                    streamer.StreamEndTime = DateTimeOffset.UtcNow;
+
+                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+                    var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
+
+                    streamer.Games.Last().EndTime = tokyoTime;
+                    streamer.StreamEndTime = tokyoTime;
 
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
                     var description = new StringBuilder();
-                    description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} UTC");
-                    description.AppendLine($"__**Ended at:** {streamer.StreamEndTime:g} UTC__");
+                    description.AppendLine($"**Started at:** {streamer.SteamStartTime:g} JST");
+                    description.AppendLine($"__**Ended at:** {streamer.StreamEndTime:g} JST__");
 
                     description.AppendLine(
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
