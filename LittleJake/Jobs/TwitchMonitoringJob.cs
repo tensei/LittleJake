@@ -68,7 +68,7 @@ namespace LittleJake.Jobs
                 if (isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
                     var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
-                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                     var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(stream.CreatedAt.ToUniversalTime(), tkyZone);
 
                     streamer.SteamStartTime = tokyoTime;
@@ -151,7 +151,7 @@ namespace LittleJake.Jobs
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
 
-                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time");
+                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                     var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
 
                     streamer.Games.Last().EndTime = tokyoTime;
