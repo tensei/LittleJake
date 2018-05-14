@@ -210,7 +210,9 @@ namespace LittleJake.Jobs
 
         private Embed CreateTwitchEmbed(TwitchStreamer streamer, Stream stream)
         {
-            var timeLive = DateTimeOffset.UtcNow - streamer.SteamStartTime;
+            var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
+            var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
+            var timeLive = tokyoTime - streamer.SteamStartTime;
 
             return new EmbedBuilder()
                 .WithAuthor($"{streamer.Name} is live", url: $"https://twitch.tv/{streamer.Name}")
