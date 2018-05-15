@@ -49,10 +49,15 @@ namespace LittleJake.Jobs
 
                 var isStreaming = _twitchService.IsUserStreamingAsync(_channelId).AsSync(false);
 
+
+                var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
+                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
+
+
                 //after the streamer goes offline the twitch api will sometimes says the stream is online
                 //we wait for 3 minutes after the last stream to make sure the streamer in actually on or offline
                 //this is arbitrary
-                if (DateTimeOffset.UtcNow - streamer.StreamEndTime < TimeSpan.FromMinutes(3))
+                if (timeNow - streamer.StreamEndTime < TimeSpan.FromMinutes(3))
                 {
                     return;
                 }
@@ -68,13 +73,12 @@ namespace LittleJake.Jobs
                 if (isStreaming && streamer.StreamLength >= TimeSpan.Zero)
                 {
                     var stream = _twitchService.GetStreamAsync(_channelId).AsSync(false);
-                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                     var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(stream.CreatedAt.ToUniversalTime(), tkyZone);
 
                     streamer.SteamStartTime = tokyoTime;
                     streamer.Games.Add(new Data.Entities.Game()
                     {
-                        StartTime = DateTimeOffset.UtcNow,
+                        StartTime = timeNow,
                         Name = string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game
                     });
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
@@ -107,10 +111,10 @@ namespace LittleJake.Jobs
                     var currentGame = string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game;
                     if (oldGame != null && oldGame.Name != currentGame)
                     {
-                        oldGame.EndTime = DateTimeOffset.UtcNow;
+                        oldGame.EndTime = timeNow;
                         streamer.Games.Add(new Data.Entities.Game()
                         {
-                            StartTime = DateTimeOffset.UtcNow,
+                            StartTime = timeNow,
                             Name = currentGame
                         });
                     }
@@ -150,8 +154,6 @@ namespace LittleJake.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-
-                    var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                     var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
 
                     streamer.Games.Last().EndTime = tokyoTime;
