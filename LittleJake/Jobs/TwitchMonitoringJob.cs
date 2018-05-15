@@ -154,10 +154,8 @@ namespace LittleJake.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-                    var tokyoTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
-
-                    streamer.Games.Last().EndTime = tokyoTime;
-                    streamer.StreamEndTime = tokyoTime;
+                    streamer.Games.Last().EndTime = timeNow;
+                    streamer.StreamEndTime = timeNow;
 
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
