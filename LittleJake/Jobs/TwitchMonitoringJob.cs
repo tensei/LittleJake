@@ -144,8 +144,6 @@ namespace LittleJake.Jobs
 
                         message.ModifyAsync(x => x.Embed = CreateTwitchEmbed(streamer, stream)).AsSync(false);
                     }
-
-
                 }
 
                 //stream ended
