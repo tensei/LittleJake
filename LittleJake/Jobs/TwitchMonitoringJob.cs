@@ -153,20 +153,22 @@ namespace LittleJake.Jobs
                     Log.Debug($"{streamer.Name} started streaming {DateTimeOffset.UtcNow:g}");
                     streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow;
-                    var startTime = streamer.SteamStartTime.UtcDateTime;
+                    var startTime = streamer.SteamStartTime;
                     var endTime = DateTimeOffset.UtcNow - _waitEndTime;
+                    var tmz = "UTC";
                     // jakenbakelive convert to tokyo time 
                     if (streamer.Id == (long)11249217)
                     {
                         startTime = TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone);
                         endTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone);
+                        tmz = "JST";
                     }
 
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
                     var description = new StringBuilder();
-                    description.AppendLine($"**Started at:** {startTime:g} JST");
-                    description.AppendLine($"__**Ended at:** {endTime:g} JST__");
+                    description.AppendLine($"**Started at:** {startTime:g} {tmz}");
+                    description.AppendLine($"__**Ended at:** {endTime:g} {tmz}__");
 
                     description.AppendLine(
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
