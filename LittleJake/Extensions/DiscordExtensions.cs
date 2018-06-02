@@ -50,7 +50,7 @@ namespace LittleJake.Extensions
                 eb.AddField(m.Name, m.GetHelpString(ctx, provider));
             }
 
-            eb.AddField("Bot", "?bot ----- Bot Stuff");
+            // eb.AddField("Bot", "?bot ----- Bot Stuff");
             return eb.Build();
         }
 
