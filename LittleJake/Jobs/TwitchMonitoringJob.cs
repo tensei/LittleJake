@@ -25,6 +25,7 @@ namespace LittleJake.Jobs
         private readonly long _channelId;
         private readonly DiscordSocketClient _client;
         private readonly TwitchService _twitchService;
+        private readonly TimeSpan _waitEndTime = TimeSpan.FromMinutes(3);
 
         public TwitchMonitoringJob(long channelId, TwitchService twitchService, JakeBotContext botContext,
             DiscordSocketClient client)
@@ -54,7 +55,7 @@ namespace LittleJake.Jobs
                 //after the streamer goes offline the twitch api will sometimes says the stream is online
                 //we wait for 3 minutes after the last stream to make sure the streamer in actually on or offline
                 //this is arbitrary
-                if (DateTimeOffset.UtcNow - streamer.StreamEndTime < TimeSpan.FromMinutes(3))
+                if (DateTimeOffset.UtcNow - streamer.StreamEndTime < _waitEndTime)
                 {
                     return;
                 }
@@ -153,12 +154,12 @@ namespace LittleJake.Jobs
                     streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow;
                     var startTime = streamer.SteamStartTime.UtcDateTime;
-                    var endTime = DateTimeOffset.UtcNow;
+                    var endTime = DateTimeOffset.UtcNow - _waitEndTime;
                     // jakenbakelive convert to tokyo time 
                     if (streamer.Id == (long)11249217)
                     {
                         startTime = TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone);
-                        endTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tkyZone);
+                        endTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone);
                     }
 
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
