@@ -45,7 +45,7 @@ namespace LittleJake.Jobs
                 var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
                 if (channel is null)
                 {
-                    Log.Information($"{youtuber.Name} missing channel {subscription.DiscordChannelId}");
+                    Log.Information($"Youtube: {youtuber.Name} missing channel {subscription.DiscordChannelId} on server {channel.Guild.Name}");
                     continue;
                 }
                 channel.SendMessageAsync(video.Url);
