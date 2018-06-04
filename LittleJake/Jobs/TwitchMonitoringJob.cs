@@ -149,9 +149,8 @@ namespace LittleJake.Jobs
                 //stream ended
                 if (!isStreaming && streamer.StreamLength <= TimeSpan.Zero)
                 {
-                    Log.Debug($"{streamer.Name} started streaming {DateTimeOffset.UtcNow:g}");
-                    streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
-                    streamer.StreamEndTime = DateTimeOffset.UtcNow;
+                    streamer.Games.Last().EndTime = DateTimeOffset.UtcNow - _waitEndTime;
+                    streamer.StreamEndTime = DateTimeOffset.UtcNow - _waitEndTime;
                     var startTime = $"{streamer.SteamStartTime:g}";
                     var endTime = $"{(DateTimeOffset.UtcNow - _waitEndTime):g}";
                     var tmz = "UTC";
