@@ -154,23 +154,23 @@ namespace LittleJake.Jobs
                     Log.Debug($"{streamer.Name} started streaming {DateTimeOffset.UtcNow:g}");
                     streamer.Games.Last().EndTime = DateTimeOffset.UtcNow;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow;
-                    var startTime = streamer.SteamStartTime;
-                    var endTime = DateTimeOffset.UtcNow - _waitEndTime;
+                    var startTime = $"{streamer.SteamStartTime:g}";
+                    var endTime = $"{(DateTimeOffset.UtcNow - _waitEndTime):g}";
                     var tmz = "UTC";
                     // jakenbakelive convert to tokyo time
                     if (streamer.Id == (long)11249217)
                     {
-                        // var xxx = endTime.ToString("g", CultureInfo.CreateSpecificCulture("ja-JP"));
-                        startTime = TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone);
-                        endTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone);
+                        var culture = CultureInfo.CreateSpecificCulture("ja-JP");
+                        startTime = (TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone)).ToString("g", culture);
+                        endTime = (TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone)).ToString("g", culture);
                         tmz = "JST";
                     }
 
                     var user = _twitchService.GetUserByIdAsync(streamer.Id).AsSync(false);
 
                     var description = new StringBuilder();
-                    description.AppendLine($"**Started at:** {startTime:g} {tmz}");
-                    description.AppendLine($"__**Ended at:** {endTime:g} {tmz}__");
+                    description.AppendLine($"**Started at:** {startTime} {tmz}");
+                    description.AppendLine($"__**Ended at:** {endTime} {tmz}__");
 
                     description.AppendLine(
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
