@@ -48,9 +48,9 @@ namespace LittleJake
             Log.Information("Data {@data}", _config.Get<BotConfig>());
         }
 
-        private void SetupJobs()
+        private async Task SetupJobs()
         {
-            Thread.Sleep(5000);
+            await Task.Delay(5000);
             // These jobs wont scale well
             // But only one guild is using it and this implementation is meets my needs.
             var registry = new Registry();
@@ -59,7 +59,7 @@ namespace LittleJake
 
             using (var context = _services.GetService<JakeBotContext>())
             {
-                context.Database.Migrate();
+                await context.Database.MigrateAsync();
                 foreach (var user in context.TwitterUsers.Include(x => x.TwitterAlertSubscriptions))
                 {
                     if (!user.TwitterAlertSubscriptions.Any())
@@ -117,7 +117,7 @@ namespace LittleJake
             await _services.GetRequiredService<CommandHandlingService>().InitializeAsync(_services);
             _services.GetRequiredService<UserService>().Initialize();
 
-            SetupJobs();
+            await SetupJobs();
             await Task.Delay(-1);
         }
 

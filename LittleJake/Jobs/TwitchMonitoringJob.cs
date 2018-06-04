@@ -152,7 +152,7 @@ namespace LittleJake.Jobs
                     streamer.Games.Last().EndTime = DateTimeOffset.UtcNow - _waitEndTime;
                     streamer.StreamEndTime = DateTimeOffset.UtcNow - _waitEndTime;
                     var startTime = $"{streamer.SteamStartTime:g}";
-                    var endTime = $"{(DateTimeOffset.UtcNow - _waitEndTime):g}";
+                    var endTime = $"{streamer.StreamEndTime:g}";
                     var tmz = "UTC";
                     // HACK jakenbakelive convert to tokyo time
                     if (streamer.Id == (long)11249217)
@@ -160,7 +160,7 @@ namespace LittleJake.Jobs
                         var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                         var culture = CultureInfo.CreateSpecificCulture("ja-JP");
                         startTime = (TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone)).ToString("g", culture);
-                        endTime = (TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone)).ToString("g", culture);
+                        endTime = (TimeZoneInfo.ConvertTimeFromUtc(streamer.StreamEndTime.UtcDateTime, tkyZone)).ToString("g", culture);
                         tmz = "JST";
                     }
 
@@ -174,12 +174,15 @@ namespace LittleJake.Jobs
                         $"**Total Time:** {streamer.StreamLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}");
 
 
-                    var embed = new EmbedBuilder()
+                    var embedBuilder = new EmbedBuilder()
                         .WithAuthor($"{streamer.Name} was live", url: $"https://twitch.tv/{streamer.Name}")
                         .WithThumbnailUrl(user.Logo)
-                        .WithDescription(description.ToString())
-                        // .AddField("Games Played", string.Join("\n", streamer.Games.Where(x => x.StartTime >= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")))
-                        .Build();
+                        .WithDescription(description.ToString());
+                    if (streamer.Games.Count > 1)
+                    {
+                        embedBuilder.AddField("Games Played", string.Join("\n", streamer.Games.Where(x => x.StartTime >= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")));
+                    }
+                    var embed = embedBuilder.Build();
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
                     {

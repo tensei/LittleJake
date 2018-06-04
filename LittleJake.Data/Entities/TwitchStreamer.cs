@@ -8,6 +8,7 @@ namespace LittleJake.Data.Entities
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        // typo ignore
         public DateTimeOffset SteamStartTime { get; set; }
         public DateTimeOffset StreamEndTime { get; set; }
 

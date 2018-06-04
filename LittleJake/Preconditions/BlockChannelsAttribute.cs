@@ -18,6 +18,8 @@ namespace LittleJake.Preconditions
 
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
+            // just to make the "error" go away
+            await Task.Delay(1);
             if (_channelIds.Contains(context.Channel.Id))
             {
                 return PreconditionResult.FromError("Channel is blocked");
