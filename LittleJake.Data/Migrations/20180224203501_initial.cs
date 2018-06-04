@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace LittleJake.Data.Migrations
 {
@@ -29,7 +30,7 @@ namespace LittleJake.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GuildOwners", x => new {x.DiscordId, x.GuildId});
+                    table.PrimaryKey("PK_GuildOwners", x => new { x.DiscordId, x.GuildId });
                     table.ForeignKey(
                         "FK_GuildOwners_TwitterUsers_TwitterUserId",
                         x => x.TwitterUserId,

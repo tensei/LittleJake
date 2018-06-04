@@ -51,8 +51,6 @@ namespace LittleJake.Jobs
 
                 var isStreaming = _twitchService.IsUserStreamingAsync(_channelId).AsSync(false);
 
-                var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
-
                 //after the streamer goes offline the twitch api will sometimes says the stream is online
                 //we wait for 3 minutes after the last stream to make sure the streamer in actually on or offline
                 //this is arbitrary
@@ -157,9 +155,10 @@ namespace LittleJake.Jobs
                     var startTime = $"{streamer.SteamStartTime:g}";
                     var endTime = $"{(DateTimeOffset.UtcNow - _waitEndTime):g}";
                     var tmz = "UTC";
-                    // jakenbakelive convert to tokyo time
+                    // HACK jakenbakelive convert to tokyo time
                     if (streamer.Id == (long)11249217)
                     {
+                        var tkyZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo");
                         var culture = CultureInfo.CreateSpecificCulture("ja-JP");
                         startTime = (TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone)).ToString("g", culture);
                         endTime = (TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone)).ToString("g", culture);
