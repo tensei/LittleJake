@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -156,9 +157,10 @@ namespace LittleJake.Jobs
                     var startTime = streamer.SteamStartTime;
                     var endTime = DateTimeOffset.UtcNow - _waitEndTime;
                     var tmz = "UTC";
-                    // jakenbakelive convert to tokyo time 
+                    // jakenbakelive convert to tokyo time
                     if (streamer.Id == (long)11249217)
                     {
+                        // var xxx = endTime.ToString("g", CultureInfo.CreateSpecificCulture("ja-JP"));
                         startTime = TimeZoneInfo.ConvertTimeFromUtc(streamer.SteamStartTime.UtcDateTime, tkyZone);
                         endTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow - _waitEndTime, tkyZone);
                         tmz = "JST";
@@ -226,7 +228,7 @@ namespace LittleJake.Jobs
                 .WithThumbnailUrl(stream.Channel.Logo)
                 .AddField("Playing", string.IsNullOrWhiteSpace(stream.Game) ? "No Game" : stream.Game, true)
                 .AddField("Viewers", stream.Viewers, true)
-                //we add the timeseconds so the image wont be used from the cache 
+                //we add the timeseconds so the image wont be used from the cache
                 .WithImageUrl(
                     $"{stream.Preview.Template.Replace("{width}", "1920").Replace("{height}", "1080")}?{DateTimeOffset.Now.ToUnixTimeSeconds()}")
                 .WithFooter($"Live for {timeLive.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Second)}")

@@ -30,7 +30,7 @@ namespace LittleJake.Modules
 
         private static readonly string[] namespaces =
         {
-            "System", "System.Linq",
+            "System", "System.Linq", "System.Globalization",
             "System.Diagnostics", "System.Collections",
             "System.Threading.Tasks", "Discord",
             "Discord.Commands", "Newtonsoft.Json",
