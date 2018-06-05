@@ -178,10 +178,10 @@ namespace LittleJake.Jobs
                         .WithAuthor($"{streamer.Name} was live", url: $"https://twitch.tv/{streamer.Name}")
                         .WithThumbnailUrl(user.Logo)
                         .WithDescription(description.ToString());
-                    if (streamer.Games.Count > 1)
-                    {
-                        embedBuilder.AddField("Games Played", string.Join("\n", streamer.Games.Where(x => x.StartTime >= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")));
-                    }
+                    // if (streamer.Games.Count > 1)
+                    // {
+                    //     embedBuilder.AddField("Games Played", string.Join("\n", streamer.Games.Where(x => x.StartTime >= streamer.SteamStartTime && x.EndTime <= streamer.StreamEndTime).Select(x => $"**{x.Name}:** Played for {x.PlayLength.Humanize(2, maxUnit: TimeUnit.Hour, minUnit: TimeUnit.Minute, collectionSeparator: " ")}")));
+                    // }
                     var embed = embedBuilder.Build();
 
                     foreach (var subscription in streamer.TwitchAlertSubscriptions)
