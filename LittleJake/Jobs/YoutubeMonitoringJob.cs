@@ -52,6 +52,11 @@ namespace LittleJake.Jobs
 
             foreach (var subscription in youtuber.YoutubeAlertSubscriptions)
             {
+                if (string.IsNullOrEmpty(subscription.YoutuberId))
+                {
+                    youtuber.YoutubeAlertSubscriptions.Remove(subscription);
+                    continue;
+                }
                 var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
                 if (channel is null)
                 {
