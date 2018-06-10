@@ -28,7 +28,7 @@ namespace LittleJake.Services
         public async Task<bool> IsUserStreamingAsync(long channelId)
         {
             var stream = await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString(), "live");
-            return stream != null;
+            return stream.Stream != null;
         }
 
 
