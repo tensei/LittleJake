@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Serilog;
 using TwitchLib.Api;
 using TwitchLib.Api.Models.v5.Streams;
 using TwitchLib.Api.Models.v5.Users;
@@ -28,7 +29,8 @@ namespace LittleJake.Services
         public async Task<bool> IsUserStreamingAsync(long channelId)
         {
             var stream = await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString(), "live");
-            return stream.Stream != null;
+            Log.Information($"{stream?.Stream.Channel.Name} StreamType = {stream?.Stream.StreamType}");
+            return stream.Stream != null && !stream.Stream.IsPlaylist && stream.Stream.StreamType == "livw";
         }
 
 
