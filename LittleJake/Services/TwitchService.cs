@@ -25,8 +25,12 @@ namespace LittleJake.Services
 
         public Task<User> GetUserByIdAsync(long channelId) => _api.Users.v5.GetUserByIDAsync(channelId.ToString());
 
-        public Task<bool> IsUserStreamingAsync(long channelId) =>
-            _api.Streams.v5.BroadcasterOnlineAsync(channelId.ToString());
+        public async Task<bool> IsUserStreamingAsync(long channelId)
+        {
+            var stream = await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString(), "live");
+            return stream != null;
+        }
+
 
         public async Task<Stream> GetStreamAsync(long channelId) =>
             (await _api.Streams.v5.GetStreamByUserAsync(channelId.ToString())).Stream;
