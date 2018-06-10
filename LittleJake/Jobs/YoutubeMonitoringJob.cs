@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Discord;
 using Discord.WebSocket;
 using FluentScheduler;
 using LittleJake.Data;
@@ -51,8 +52,7 @@ namespace LittleJake.Jobs
 
             foreach (var subscription in youtuber.YoutubeAlertSubscriptions)
             {
-                Log.Information($"discordid = {subscription.DiscordChannelId} youtuber = {youtuber.Name}");
-                var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
+                var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as ITextChannel;
                 if (channel is null)
                 {
                     Log.Information($"Youtube: {youtuber.Name} missing channel {subscription.DiscordChannelId} on server {channel.Guild.Name}");
