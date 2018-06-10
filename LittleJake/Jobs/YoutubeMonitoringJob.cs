@@ -42,17 +42,17 @@ namespace LittleJake.Jobs
                 Log.Information($"Error getting videos for {youtuber.Name}");
                 return;
             }
-
+            Log.Information("after video");
             if (video.DatePublished - youtuber.LatestVideoDate <= TimeSpan.Zero)
             {
                 return;
             }
+            Log.Information("after pub check");
 
             youtuber.LatestVideoDate = video.DatePublished;
 
             foreach (var subscription in youtuber.YoutubeAlertSubscriptions)
             {
-                Log.Debug($"Youtube: discord channel id is {subscription.DiscordChannelId}");
                 var channel = _client.GetChannel((ulong)subscription.DiscordChannelId) as SocketTextChannel;
                 if (channel is null)
                 {
