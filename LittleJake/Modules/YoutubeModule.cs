@@ -74,7 +74,7 @@ namespace LittleJake.Modules
                 _botContext.Youtubers.Add(youtuber);
                 JobManager.AddJob(
                     () => new YoutubeMonitoringJob(youtuber.Id, _provider.GetService<JakeBotContext>(),
-                        Context.Client).Execute(), s => s.WithName($"Youtube: {youtubeId}").ToRunEvery(60).Seconds());
+                        Context.Client).Execute(), s => s.WithName($"Youtube: {youtubeId}").ToRunNow().AndEvery(5).Minutes());
             }
 
             if (youtuber.YoutubeAlertSubscriptions.Any(x => x.DiscordChannelId == (long)guildChannel.Id))
