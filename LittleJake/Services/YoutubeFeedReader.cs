@@ -30,7 +30,7 @@ namespace LittleJake.Services
 
                 return new YoutubeFeed { YoutubeVideos = videos };
             }
-            catch (XmlException)
+            catch (Exception)
             {
                 return new YoutubeFeed { YoutubeVideos = new List<YoutubeVideo>() };
             }

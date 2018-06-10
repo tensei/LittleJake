@@ -30,14 +30,14 @@ namespace LittleJake.Jobs
         {
             var youtuber = _botContext.Youtubers.Include(x => x.YoutubeAlertSubscriptions)
                 .FirstOrDefault(x => x.Id == _channelId);
-            if (youtuber == null)
+            if (youtuber is null)
             {
                 Log.Information($"Error getting Youtuber for {_channelId}");
                 return;
             }
 
             var video = YoutubeFeedReader.GetLastestVideoFromFeed(_channelId).AsSync(false);
-            if (video == null)
+            if (video is null)
             {
                 Log.Information($"Error getting videos for {youtuber.Name}");
                 return;
